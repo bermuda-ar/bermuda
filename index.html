@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bermuda</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-darker: #000000;
+            --bg-light: #181818;
+            --bg-lighter: #282828;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --highlight: #1db954;
+            --highlight-dark: #1aa34a;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --success: #4caf50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--bg-darker);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--highlight);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            margin-right: 20px;
+        }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--highlight);
+        }
+
+        .auth-buttons button {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+
+        .auth-buttons .login-btn {
+            background-color: var(--highlight);
+        }
+
+        .auth-buttons .login-btn:hover {
+            background-color: var(--highlight-dark);
+            transform: scale(1.05);
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Login Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-light);
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: var(--highlight);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-lighter);
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--highlight);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--highlight);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: var(--highlight-dark);
+        }
+
+        .contact-admin {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .contact-admin a {
+            color: var(--highlight);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .contact-admin a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main Content */
+        .hero {
+            background: linear-gradient(to bottom, #1a1a1a, #121212);
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .cta-btn {
+            background-color: var(--highlight);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 44px;
+        }
+
+        .cta-btn:hover {
+            background-color: var(--highlight-dark);
+            transform: scale(1.05);
+        }
+
+        .cta-secondary {
+            background-color: var(--bg-lighter);
+            margin-left: 15px;
+        }
+
+        .cta-secondary:hover {
+            background-color: #333;
+        }
+
+        /* Game Listings */
+        .game-listings {
+            display: none;
+            padding: 40px 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-image {
+            height: 150px;
+            background-color: var(--bg-lighter);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .game-seller {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .game-seller i {
+            margin-right: 5px;
+        }
+
+        .game-screenshots {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .game-screenshots i {
+            margin-right: 5px;
+        }
+
+        .game-info {
+            padding: 15px;
+        }
+
+        .game-title {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .game-platform {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .game-price {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--highlight);
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--highlight);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            min-height: 44px;
+        }
+
+        .buy-btn:hover {
+            background-color: var(--highlight-dark);
+        }
+
+        /* My Accounts Section */
+        .my-accounts {
+            display: none;
+            padding: 40px 20px;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .delete-btn {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            min-height: 44px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--bg-lighter);
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+            min-height: 44px;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--highlight);
+            color: var(--highlight);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Sell Account Section */
+        .sell-form-container {
+            background-color: var(--bg-light);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .sell-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sell-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--highlight);
+        }
+
+        .sell-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .form-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .form-steps:before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--bg-lighter);
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--bg-lighter);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-number {
+            background-color: var(--highlight);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .step.active .step-label {
+            color: var(--highlight);
+            font-weight: 600;
+        }
+
+        .step.completed .step-label {
+            color: var(--success);
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            min-height: 44px;
+        }
+
+        .btn-prev {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--bg-lighter);
+        }
+
+        .btn-prev:hover {
+            background-color: var(--bg-lighter);
+        }
+
+        .btn-next {
+            background-color: var(--highlight);
+            color: white;
+        }
+
+        .btn-next:hover {
+            background-color: var(--highlight-dark);
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--bg-lighter);
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--highlight);
+            background-color: rgba(29, 185, 84, 0.05);
+        }
+
+        .file-upload-area i {
+            font-size: 40px;
+            color: var(--highlight);
+            margin-bottom: 10px;
+        }
+
+        .file-upload-area p {
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .file-upload-area .small {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .file-upload-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .file-upload-preview-item {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--bg-lighter);
+        }
+
+        .file-upload-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-upload-preview-item-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--danger);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .file-upload-preview-item:hover .file-upload-preview-item-remove {
+            opacity: 1;
+        }
+
+        .preview-card {
+            background-color: var(--bg-lighter);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Logged in state */
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-email {
+            margin-right: 15px;
+            color: var(--text-secondary);
+        }
+
+        .logout-btn {
+            background-color: var(--bg-lighter);
+            color: var(--text-primary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #333;
+        }
+
+        /* Account Details Modal */
+        .account-details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .account-details-content {
+            background-color: var(--bg-light);
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .account-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .account-details-title {
+            color: var(--highlight);
+            font-size: 24px;
+        }
+
+        .account-details-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .account-details-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .account-details-cover {
+            width: 100%;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+        }
+
+        .account-details-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .account-details-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--highlight);
+        }
+
+        .account-details-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .account-details-meta-item {
+            background-color: var(--bg-lighter);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .account-details-description {
+            line-height: 1.6;
+        }
+
+        .account-details-features {
+            margin-top: 15px;
+        }
+
+        .account-details-features ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .account-details-screenshots {
+            grid-column: span 2;
+            margin-top: 20px;
+        }
+
+        .account-details-screenshots h3 {
+            margin-bottom: 15px;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .screenshot-item img {
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid var(--bg-lighter);
+        }
+
+        .account-details-buy {
+            grid-column: span 2;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                right: 15px;
+                top: 15px;
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                margin-top: 15px;
+                gap: 10px;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .auth-buttons {
+                width: 100%;
+                margin-top: 15px;
+                justify-content: space-between;
+            }
+
+            .hero {
+                padding: 40px 15px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .cta-secondary {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sell-form-container {
+                padding: 20px;
+            }
+
+            .form-steps {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .form-steps:before {
+                display: none;
+            }
+
+            .step {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .step-number {
+                margin-right: 10px;
+                margin-bottom: 0;
+            }
+
+            .modal-content {
+                width: 90%;
+                padding: 20px;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+
+            .tab {
+                padding: 10px 15px;
+            }
+
+            .file-upload-preview-item {
+                width: 80px;
+                height: 80px;
+            }
+
+            /* Account Details Modal Responsive */
+            .account-details-body {
+                grid-template-columns: 1fr;
+            }
+
+            .account-details-screenshots {
+                grid-column: span 1;
+            }
+
+            .account-details-buy {
+                grid-column: span 1;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .games-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="#" class="logo">Bermuda</a>
+        <button class="mobile-menu-btn" id="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="nav-links" id="nav-links">
+            <a href="#" id="browse-link">Browse</a>
+            <a href="#" id="my-accounts-link">My Accounts</a>
+            <a href="#" id="sell-link">Sell Account</a>
+        </div>
+        <div class="auth-buttons">
+            <div id="logged-out">
+                <button class="login-btn" id="open-login">Login</button>
+            </div>
+            <div id="logged-in" style="display: none;">
+                <div class="user-info">
+                    <span class="user-email" id="user-email-display"></span>
+                    <button class="logout-btn" id="logout-btn">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" id="hero-section">
+            <h1>Buy & Sell Premium Game Accounts</h1>
+            <p>Marketplace for high-level, rare, and exclusive game accounts. Instant delivery after payment
+                verification.</p>
+            <div class="hero-buttons">
+                <button class="cta-btn" id="hero-login-btn">Login to Browse</button>
+                <button class="cta-btn cta-secondary" id="hero-sell-btn">Sell Your Account</button>
+            </div>
+        </section>
+
+        <section class="game-listings" id="game-listings">
+            <div class="tabs">
+                <div class="tab active" data-tab="all-accounts">All Accounts</div>
+                <div class="tab" data-tab="freefire">Free Fire</div>
+                <div class="tab" data-tab="pubg">PUBG</div>
+                <div class="tab" data-tab="bloodstrike">Blood Strike</div>
+                <div class="tab" data-tab="pes">PES</div>
+            </div>
+            <div class="tab-content active" id="all-accounts">
+                <h2 class="section-title">
+                    Available Accounts
+                    <button class="cta-btn" id="add-account-btn" style="padding: 8px 15px; font-size: 14px;">+ Sell
+                        Account</button>
+                </h2>
+                <div class="games-grid" id="games-grid">
+                    <!-- Game cards will be added dynamically -->
+                </div>
+            </div>
+            <div class="tab-content" id="freefire">
+                <h2 class="section-title">Free Fire Accounts</h2>
+                <div class="games-grid" id="freefire-grid">
+                    <!-- Free Fire cards will be added dynamically -->
+                </div>
+            </div>
+            <div class="tab-content" id="pubg">
+                <h2 class="section-title">PUBG Accounts</h2>
+                <div class="games-grid" id="pubg-grid">
+                    <!-- PUBG cards will be added dynamically -->
+                </div>
+            </div>
+            <div class="tab-content" id="bloodstrike">
+                <h2 class="section-title">Blood Strike Accounts</h2>
+                <div class="games-grid" id="bloodstrike-grid">
+                    <!-- Blood Strike cards will be added dynamically -->
+                </div>
+            </div>
+            <div class="tab-content" id="pes">
+                <h2 class="section-title">PES Accounts</h2>
+                <div class="games-grid" id="pes-grid">
+                    <!-- PES cards will be added dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <section class="my-accounts" id="my-accounts">
+            <h2 class="section-title">My Accounts for Sale</h2>
+            <div class="games-grid" id="my-accounts-grid">
+                <!-- User's accounts will be added dynamically -->
+            </div>
+        </section>
+
+        <!-- Sell Account Section -->
+        <section class="sell-form-container" id="sell-account-section" style="display: none;">
+            <div class="sell-header">
+                <h1>Sell Your Game Account</h1>
+                <p>Fill out the form below to list your account for sale</p>
+            </div>
+
+            <div class="form-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Account Details</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Media</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Review</div>
+                </div>
+            </div>
+
+            <form id="sell-account-form">
+                <!-- Step 1: Account Details -->
+                <div class="form-section active" data-section="1">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="account-title" class="required">Account Title</label>
+                            <input type="text" id="account-title" placeholder="e.g., Free Fire Account with Rare Skins"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="account-game" class="required">Game</label>
+                            <select id="account-game" required>
+                                <option value="">Select Game</option>
+                                <option value="Free Fire">Free Fire</option>
+                                <option value="PUBG">PUBG</option>
+                                <option value="Blood Strike">Blood Strike</option>
+                                <option value="PES">PES</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="account-platform" class="required">Platform</label>
+                            <select id="account-platform" required>
+                                <option value="">Select Platform</option>
+                                <option value="PC">PC</option>
+                                <option value="Android">Android</option>
+                                <option value="iOS">iOS</option>
+                                <option value="Cross-Platform">Cross-Platform</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="account-price" class="required">Price (EGP)</label>
+                            <input type="number" id="account-price" step="1" placeholder="1000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="account-level">Account Elite/Booyah Pass</label>
+                            <input type="text" id="account-level" placeholder="e.g., Heroic or Level 50">
+                        </div>
+                        <div class="form-group">
+                            <label for="account-status" class="required">Account Status</label>
+                            <select id="account-status" required>
+                                <option value="Available">Available</option>
+                                <option value="Sold">Sold</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="account-description" class="required">Description</label>
+                        <textarea id="account-description"
+                            placeholder="Describe your account in detail (what's included, special features, etc.)"
+                            required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="account-features">Key Features (comma separated)</label>
+                        <input type="text" id="account-features"
+                            placeholder="e.g., Rare skins, All characters unlocked, Max level">
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-next" data-next="2">Next: Media <i
+                                class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Media -->
+                <div class="form-section" data-section="2">
+                    <div class="form-group">
+                        <label class="file-upload-label required">Cover Image</label>
+                        <p class="file-upload-label small">This will be the main image for your listing (max 5MB)</p>
+                        <div class="file-upload-area" id="cover-upload-area">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop your cover image here</p>
+                            <p class="small">or click to browse files</p>
+                            <button type="button" class="cta-btn" id="upload-cover-btn" style="margin-top: 10px;">Upload
+                                Cover Image</button>
+                        </div>
+                        <div class="file-upload-preview" id="cover-preview"></div>
+                        <input type="hidden" id="cover-image-url">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="file-upload-label required">Screenshots</label>
+                        <p class="file-upload-label small">Upload at least 2 screenshots (max 5, 5MB each)</p>
+                        <div class="file-upload-area" id="screenshots-upload-area">
+                            <i class="fas fa-images"></i>
+                            <p>Drag & drop your screenshots here</p>
+                            <p class="small">or click to browse files</p>
+                            <button type="button" class="cta-btn" id="upload-screenshots-btn"
+                                style="margin-top: 10px;">Upload Screenshots</button>
+                        </div>
+                        <div class="file-upload-preview" id="screenshots-preview"></div>
+                        <input type="hidden" id="screenshots-urls">
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-prev" data-prev="1"><i class="fas fa-arrow-left"></i>
+                            Previous</button>
+                        <button type="button" class="nav-btn btn-next" data-next="3">Next: Review <i
+                                class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Review -->
+                <div class="form-section" data-section="3">
+                    <div class="form-group">
+                        <h3 style="margin-bottom: 20px; color: var(--highlight);">Review Your Listing</h3>
+
+                        <div class="preview-card">
+                            <div id="preview-cover"
+                                style="height: 200px; background-color: var(--bg-dark); background-size: cover; background-position: center; border-radius: 6px; margin-bottom: 15px;">
+                            </div>
+
+                            <h3 id="preview-title" style="margin-bottom: 10px;"></h3>
+                            <p id="preview-game" style="color: var(--text-secondary); margin-bottom: 5px;"></p>
+                            <p id="preview-level" style="color: var(--text-secondary); margin-bottom: 15px;"></p>
+                            <p id="preview-price"
+                                style="font-size: 20px; font-weight: 600; color: var(--highlight); margin-bottom: 15px;">
+                            </p>
+
+                            <h4 style="margin-bottom: 10px; color: var(--highlight);">Description</h4>
+                            <p id="preview-description" style="margin-bottom: 15px;"></p>
+
+                            <h4 style="margin-bottom: 10px; color: var(--highlight);">Features</h4>
+                            <ul id="preview-features" style="margin-bottom: 15px; padding-left: 20px;"></ul>
+
+                            <div id="preview-screenshots"
+                                style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;">
+                                <!-- Screenshots will be added here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-prev" data-prev="2"><i class="fas fa-arrow-left"></i>
+                            Previous</button>
+                        <button type="submit" class="submit-btn">Submit Listing <i class="fas fa-check"></i></button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login</h2>
+                <button class="close-btn" id="close-login">&times;</button>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+            <div class="contact-admin">
+                Don't have an account? <a id="contact-admin-link">Contact Admin on WhatsApp</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Details Modal -->
+    <div class="modal account-details-modal" id="account-details-modal">
+        <div class="account-details-content">
+            <div class="account-details-header">
+                <h2 class="account-details-title" id="account-details-title"></h2>
+                <button class="account-details-close" id="close-account-details">&times;</button>
+            </div>
+            <div class="account-details-body">
+                <div class="account-details-cover" id="account-details-cover"></div>
+                <div class="account-details-info">
+                    <div class="account-details-price" id="account-details-price"></div>
+                    <div class="account-details-meta">
+                        <span class="account-details-meta-item" id="account-details-game"></span>
+                        <span class="account-details-meta-item" id="account-details-platform"></span>
+                        <span class="account-details-meta-item" id="account-details-level"></span>
+                        <span class="account-details-meta-item" id="account-details-status"></span>
+                    </div>
+                    <div class="account-details-description" id="account-details-description"></div>
+                    <div class="account-details-features">
+                        <h4>Key Features</h4>
+                        <ul id="account-details-features"></ul>
+                    </div>
+                    <div class="account-details-seller">
+                        <h4>Seller</h4>
+                        <p id="account-details-seller"></p>
+                    </div>
+                </div>
+                <div class="account-details-screenshots">
+                    <h3>Screenshots</h3>
+                    <div class="screenshots-grid" id="account-details-screenshots"></div>
+                </div>
+                <div class="account-details-buy">
+                    <button class="cta-btn" id="account-details-buy-btn">Buy Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screenshots Modal -->
+    <div class="modal screenshots-modal" id="screenshots-modal">
+        <div class="screenshots-content">
+            <div class="screenshots-header">
+                <h2 class="screenshots-title" id="screenshots-game-title">Account Screenshots</h2>
+                <button class="close-btn" id="close-screenshots">&times;</button>
+            </div>
+            <div class="screenshots-grid" id="screenshots-grid">
+                <!-- Screenshots will be added dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const _0x53e529 = _0x3bb7; (function (_0xf94a7f, _0x51cbad) { const _0x19089d = _0x3bb7, _0x1d5f8c = _0xf94a7f(); while (!![]) { try { const _0x4fda4c = -parseInt(_0x19089d(0x209)) / 0x1 * (parseInt(_0x19089d(0x125)) / 0x2) + -parseInt(_0x19089d(0x256)) / 0x3 + parseInt(_0x19089d(0x2cc)) / 0x4 * (-parseInt(_0x19089d(0x187)) / 0x5) + parseInt(_0x19089d(0x283)) / 0x6 + -parseInt(_0x19089d(0x26a)) / 0x7 * (parseInt(_0x19089d(0x292)) / 0x8) + parseInt(_0x19089d(0x26d)) / 0x9 * (-parseInt(_0x19089d(0x126)) / 0xa) + -parseInt(_0x19089d(0x16a)) / 0xb * (-parseInt(_0x19089d(0xbd)) / 0xc); if (_0x4fda4c === _0x51cbad) break; else _0x1d5f8c['push'](_0x1d5f8c['shift']()); } catch (_0x4a2490) { _0x1d5f8c['push'](_0x1d5f8c['shift']()); } } }(_0x7601, 0x4c65c)); const firebaseConfig = { 'apiKey': _0x53e529(0x1fa), 'authDomain': _0x53e529(0x232), 'databaseURL': _0x53e529(0x2f0), 'projectId': _0x53e529(0x111), 'storageBucket': _0x53e529(0x28b), 'messagingSenderId': _0x53e529(0x1ab), 'appId': '1:153097537918:web:6e6635f51e796f09de8b2f', 'measurementId': _0x53e529(0x239) }; firebase['initializeApp'](firebaseConfig); const auth = firebase[_0x53e529(0x1f6)](), db = firebase['firestore'](), storage = firebase[_0x53e529(0xd7)](), cloudName = _0x53e529(0x119), uploadPreset = _0x53e529(0x2d1), openLoginBtn = document[_0x53e529(0x26f)]('open-login'), heroLoginBtn = document[_0x53e529(0x26f)]('hero-login-btn'), heroSellBtn = document['getElementById'](_0x53e529(0x90)), loginModal = document[_0x53e529(0x26f)]('login-modal'), closeLoginBtn = document['getElementById']('close-login'), loginForm = document[_0x53e529(0x26f)](_0x53e529(0x13e)), contactAdminLink = document[_0x53e529(0x26f)](_0x53e529(0x1d6)), loggedOutDiv = document['getElementById'](_0x53e529(0x1ee)), loggedInDiv = document['getElementById'](_0x53e529(0x2aa)), logoutBtn = document['getElementById'](_0x53e529(0x1ed)), userEmailDisplay = document[_0x53e529(0x26f)](_0x53e529(0x1b1)), heroSection = document['getElementById'](_0x53e529(0x225)), gameListings = document[_0x53e529(0x26f)]('game-listings'), myAccountsSection = document[_0x53e529(0x26f)](_0x53e529(0xb5)), sellAccountSection = document[_0x53e529(0x26f)](_0x53e529(0x295)), browseLink = document[_0x53e529(0x26f)](_0x53e529(0x28d)), myAccountsLink = document[_0x53e529(0x26f)](_0x53e529(0x2ad)), sellLink = document['getElementById'](_0x53e529(0x236)), addAccountBtn = document[_0x53e529(0x26f)](_0x53e529(0xc3)), gamesGrid = document['getElementById'](_0x53e529(0x116)), freefireGrid = document['getElementById'](_0x53e529(0xa4)), pubgGrid = document[_0x53e529(0x26f)](_0x53e529(0x15d)), bloodstrikeGrid = document[_0x53e529(0x26f)](_0x53e529(0x14b)), pesGrid = document[_0x53e529(0x26f)]('pes-grid'), myAccountsGrid = document[_0x53e529(0x26f)]('my-accounts-grid'), screenshotsModal = document[_0x53e529(0x26f)](_0x53e529(0x248)), closeScreenshotsBtn = document['getElementById'](_0x53e529(0x11e)), screenshotsGrid = document[_0x53e529(0x26f)](_0x53e529(0x173)), screenshotsGameTitle = document['getElementById'](_0x53e529(0x2d4)), tabs = document[_0x53e529(0x298)](_0x53e529(0x276)), tabContents = document[_0x53e529(0x298)](_0x53e529(0x184)), sellAccountForm = document['getElementById'](_0x53e529(0x234)), formSections = document['querySelectorAll']('.form-section'), steps = document[_0x53e529(0x298)]('.step'), nextButtons = document[_0x53e529(0x298)]('.btn-next'), prevButtons = document['querySelectorAll'](_0x53e529(0x16b)), coverUploadArea = document['getElementById']('cover-upload-area'), coverPreview = document[_0x53e529(0x26f)]('cover-preview'), screenshotsUploadArea = document['getElementById'](_0x53e529(0x98)), screenshotsPreview = document[_0x53e529(0x26f)](_0x53e529(0x18f)), previewTitle = document['getElementById'](_0x53e529(0x28f)), previewGame = document[_0x53e529(0x26f)](_0x53e529(0x2d7)), previewLevel = document[_0x53e529(0x26f)](_0x53e529(0x16d)), previewPrice = document['getElementById']('preview-price'), previewDescription = document[_0x53e529(0x26f)](_0x53e529(0x25f)), previewFeatures = document[_0x53e529(0x26f)]('preview-features'), previewCover = document[_0x53e529(0x26f)](_0x53e529(0xbf)), previewScreenshots = document[_0x53e529(0x26f)](_0x53e529(0x112)), coverImageUrlInput = document[_0x53e529(0x26f)](_0x53e529(0xa5)), screenshotsUrlsInput = document[_0x53e529(0x26f)](_0x53e529(0x121)), uploadCoverBtn = document[_0x53e529(0x26f)](_0x53e529(0x252)), uploadScreenshotsBtn = document['getElementById']('upload-screenshots-btn'), mobileMenuBtn = document[_0x53e529(0x26f)](_0x53e529(0x101)), navLinks = document['getElementById'](_0x53e529(0x102)), accountDetailsModal = document[_0x53e529(0x26f)](_0x53e529(0xf0)), closeAccountDetailsBtn = document[_0x53e529(0x26f)](_0x53e529(0x2bb)), accountDetailsTitle = document[_0x53e529(0x26f)]('account-details-title'), accountDetailsCover = document['getElementById']('account-details-cover'), accountDetailsPrice = document[_0x53e529(0x26f)](_0x53e529(0x1b5)), accountDetailsGame = document['getElementById'](_0x53e529(0x2ef)), accountDetailsPlatform = document[_0x53e529(0x26f)](_0x53e529(0x194)), accountDetailsLevel = document[_0x53e529(0x26f)]('account-details-level'), accountDetailsStatus = document[_0x53e529(0x26f)](_0x53e529(0x128)), accountDetailsDescription = document[_0x53e529(0x26f)](_0x53e529(0x1be)), accountDetailsFeatures = document[_0x53e529(0x26f)](_0x53e529(0x265)), accountDetailsSeller = document[_0x53e529(0x26f)](_0x53e529(0x97)), accountDetailsScreenshots = document[_0x53e529(0x26f)](_0x53e529(0x1ff)), accountDetailsBuyBtn = document[_0x53e529(0x26f)](_0x53e529(0x2c0)); function _0x3bb7(_0x5da445, _0x2fbfb3) { const _0x76012c = _0x7601(); return _0x3bb7 = function (_0x3bb70a, _0x59a5a6) { _0x3bb70a = _0x3bb70a - 0x88; let _0x5312b4 = _0x76012c[_0x3bb70a]; return _0x5312b4; }, _0x3bb7(_0x5da445, _0x2fbfb3); } let currentGameForScreenshots = null, currentAccountDetails = null, currentUser = null, coverImageUrl = '', screenshotsUrls = []; function init() { const _0x672008 = _0x53e529, _0x1b48fb = { 'QwVWK': function (_0x4d02b6) { return _0x4d02b6(); }, 'yUSKc': function (_0xc33e5) { return _0xc33e5(); } }; _0x1b48fb[_0x672008(0xbc)](setupEventListeners), _0x1b48fb[_0x672008(0x131)](checkAuthState), showGameListings(); } function setupEventListeners() { const _0x1760e8 = _0x53e529, _0x35cc5c = { 'xtdEn': _0x1760e8(0x12a), 'MRhyh': function (_0x19bf1d, _0x172186) { return _0x19bf1d === _0x172186; }, 'jRZxE': 'yGtqT', 'FHZZb': 'click', 'aZdjd': _0x1760e8(0x88) }; mobileMenuBtn['addEventListener'](_0x35cc5c[_0x1760e8(0xa1)], () => { const _0xcfd1b8 = _0x1760e8; navLinks['classList'][_0xcfd1b8(0x221)](_0x35cc5c[_0xcfd1b8(0x136)]); }), openLoginBtn['addEventListener']('click', openLoginModal), heroLoginBtn[_0x1760e8(0x2d9)](_0x35cc5c[_0x1760e8(0xa1)], openLoginModal), heroSellBtn[_0x1760e8(0x2d9)](_0x1760e8(0x195), handleSellButtonClick), closeLoginBtn['addEventListener'](_0x35cc5c['FHZZb'], closeLoginModal), loginForm[_0x1760e8(0x2d9)](_0x35cc5c['aZdjd'], handleLogin), logoutBtn[_0x1760e8(0x2d9)](_0x35cc5c[_0x1760e8(0xa1)], handleLogout), contactAdminLink[_0x1760e8(0x2d9)](_0x35cc5c[_0x1760e8(0xa1)], openWhatsApp), browseLink[_0x1760e8(0x2d9)](_0x35cc5c['FHZZb'], showGameListings), myAccountsLink[_0x1760e8(0x2d9)](_0x35cc5c[_0x1760e8(0xa1)], showMyAccounts), sellLink['addEventListener'](_0x35cc5c[_0x1760e8(0xa1)], showSellAccount), addAccountBtn[_0x1760e8(0x2d9)](_0x35cc5c[_0x1760e8(0xa1)], showSellAccount), tabs[_0x1760e8(0x191)](_0xc35b8d => { const _0x35ce8f = _0x1760e8, _0x2ac215 = { 'iIfDn': _0x35ce8f(0x11c) }; if (_0x35cc5c[_0x35ce8f(0x216)](_0x35cc5c[_0x35ce8f(0x24f)], _0x35cc5c[_0x35ce8f(0x24f)])) _0xc35b8d[_0x35ce8f(0x2d9)](_0x35cc5c[_0x35ce8f(0xa1)], handleTabClick); else return _0x2ccf8d['error'](_0x2ac215[_0x35ce8f(0x2e8)], _0x4a576c), []; }), closeScreenshotsBtn['addEventListener'](_0x1760e8(0x195), closeScreenshotsModal), nextButtons[_0x1760e8(0x191)](_0x3f6806 => { _0x3f6806['addEventListener'](_0x35cc5c['FHZZb'], handleNextButton); }), prevButtons[_0x1760e8(0x191)](_0x33ce5c => { const _0x1b863d = _0x1760e8; _0x33ce5c[_0x1b863d(0x2d9)](_0x35cc5c[_0x1b863d(0xa1)], handlePrevButton); }), uploadCoverBtn[_0x1760e8(0x2d9)](_0x35cc5c[_0x1760e8(0xa1)], () => openCloudinaryWidget(_0x1760e8(0x1d4))), uploadScreenshotsBtn[_0x1760e8(0x2d9)](_0x35cc5c[_0x1760e8(0xa1)], () => openCloudinaryWidget('screenshots')), sellAccountForm['addEventListener'](_0x35cc5c[_0x1760e8(0x261)], handleSellAccountSubmit), closeAccountDetailsBtn[_0x1760e8(0x2d9)](_0x35cc5c[_0x1760e8(0xa1)], closeAccountDetailsModal), accountDetailsBuyBtn[_0x1760e8(0x2d9)](_0x35cc5c[_0x1760e8(0xa1)], handleAccountDetailsBuy); } function openCloudinaryWidget(_0x36b599) { const _0x19a293 = _0x53e529, _0x2daccb = { 'ivwgC': function (_0x121a3d) { return _0x121a3d(); }, 'HwdUG': _0x19a293(0x12a), 'NNMPK': function (_0x5ac6b6, _0x572ac0) { return _0x5ac6b6 === _0x572ac0; }, 'HNgtb': _0x19a293(0x192), 'QrDQT': function (_0x14c7fe, _0x2cd8b5) { return _0x14c7fe && _0x2cd8b5; }, 'aXaJg': _0x19a293(0xc1), 'GKyOQ': function (_0x214fee, _0x367d0e) { return _0x214fee !== _0x367d0e; }, 'efXuT': _0x19a293(0x176), 'PyerT': function (_0x530664, _0x398c83) { return _0x530664 === _0x398c83; }, 'YwCnY': 'cover', 'rleel': function (_0x50ca6c, _0x396c28) { return _0x50ca6c(_0x396c28); }, 'UndHD': _0x19a293(0x28c), 'hrHVd': _0x19a293(0x1c4), 'HtzSF': _0x19a293(0x130), 'SUDRs': _0x19a293(0x29a), 'JIVYS': _0x19a293(0x12c), 'BBTOt': function (_0x30e2e4, _0x1cc608) { return _0x30e2e4 === _0x1cc608; }, 'YMNzI': _0x19a293(0x2d1), 'AqBnP': 'image', 'DsAsI': _0x19a293(0x204), 'FUUVL': 'jpeg', 'KimNO': 'png', 'FVCYQ': _0x19a293(0x182), 'YXZkV': _0x19a293(0x145), 'eLXdc': _0x19a293(0x20d), 'RxOcv': _0x19a293(0x22d), 'KVEYG': _0x19a293(0x117), 'IULzO': _0x19a293(0x2ed), 'MBpzi': '#F44336', 'HJOlD': '#000000', 'ZlupO': _0x19a293(0x2a7) }, _0x31f800 = { 'cloudName': cloudName, 'uploadPreset': uploadPreset, 'sources': [_0x2daccb['HtzSF'], _0x2daccb[_0x19a293(0x10c)], _0x2daccb[_0x19a293(0x1c0)]], 'multiple': _0x2daccb[_0x19a293(0x107)](_0x36b599, _0x2daccb[_0x19a293(0xfd)]), 'maxFiles': _0x2daccb[_0x19a293(0x107)](_0x36b599, _0x19a293(0x28c)) ? 0x5 : 0x1, 'cropping': _0x36b599 === _0x2daccb['YwCnY'], 'croppingAspectRatio': _0x2daccb[_0x19a293(0x294)](_0x36b599, _0x19a293(0x1d4)) ? 1.78 : undefined, 'showSkipCropButton': ![], 'folder': _0x2daccb[_0x19a293(0x2e5)], 'resourceType': _0x2daccb[_0x19a293(0x1c3)], 'clientAllowedFormats': [_0x2daccb['DsAsI'], _0x2daccb['FUUVL'], _0x2daccb[_0x19a293(0x132)]], 'maxImageFileSize': 0x4c4b40, 'theme': _0x2daccb[_0x19a293(0x151)], 'styles': { 'palette': { 'window': _0x2daccb[_0x19a293(0x297)], 'sourceBg': _0x2daccb[_0x19a293(0xab)], 'windowBorder': _0x2daccb[_0x19a293(0x1de)], 'tabIcon': _0x2daccb[_0x19a293(0x290)], 'inactiveTabIcon': _0x2daccb[_0x19a293(0x9a)], 'menuIcons': _0x2daccb[_0x19a293(0x1de)], 'link': _0x2daccb[_0x19a293(0x1de)], 'action': _0x2daccb[_0x19a293(0x1de)], 'inProgress': _0x2daccb[_0x19a293(0x1de)], 'complete': _0x2daccb['RxOcv'], 'error': _0x2daccb[_0x19a293(0x10d)], 'textDark': _0x2daccb[_0x19a293(0x1f7)], 'textLight': _0x2daccb[_0x19a293(0x290)] }, 'fonts': { 'default': null, '\x27Montserrat\x27,\x20sans-serif': { 'url': _0x2daccb[_0x19a293(0x247)], 'active': !![] } } } }, _0x51fb0a = window[_0x19a293(0x254)][_0x19a293(0x2b7)](_0x31f800, (_0x5dab55, _0x1bfdc0) => { const _0x2c57a4 = _0x19a293, _0x16e81c = { 'xnuah': _0x2daccb['HwdUG'] }; if (_0x2daccb[_0x2c57a4(0x107)](_0x2daccb[_0x2c57a4(0x2ce)], _0x2c57a4(0x192))) { if (_0x2daccb[_0x2c57a4(0x13d)](!_0x5dab55, _0x1bfdc0) && _0x1bfdc0[_0x2c57a4(0x21c)] === _0x2daccb[_0x2c57a4(0xfc)]) { if (_0x2daccb[_0x2c57a4(0x1dd)](_0x2daccb[_0x2c57a4(0x2d3)], _0x2daccb[_0x2c57a4(0x2d3)])) _0x2daccb['ivwgC'](_0x110baa); else { if (_0x2daccb['PyerT'](_0x36b599, _0x2daccb[_0x2c57a4(0x95)])) coverImageUrl = _0x1bfdc0[_0x2c57a4(0x1f1)][_0x2c57a4(0x180)], coverImageUrlInput['value'] = coverImageUrl, _0x2daccb[_0x2c57a4(0x25e)](updateCoverPreview, coverImageUrl); else _0x36b599 === _0x2daccb[_0x2c57a4(0xfd)] && (_0x2daccb[_0x2c57a4(0x1dd)](_0x2daccb[_0x2c57a4(0x17c)], _0x2daccb['hrHVd']) ? _0x22b5e4[_0x2c57a4(0x2d8)][_0x2c57a4(0xce)](_0x2daccb[_0x2c57a4(0x147)]) : !screenshotsUrls[_0x2c57a4(0x258)](_0x1bfdc0['info'][_0x2c57a4(0x180)]) && (screenshotsUrls[_0x2c57a4(0x174)](_0x1bfdc0[_0x2c57a4(0x1f1)]['secure_url']), screenshotsUrlsInput['value'] = JSON[_0x2c57a4(0x215)](screenshotsUrls), updateScreenshotsPreview(screenshotsUrls))); } } } else _0x12e877[_0x2c57a4(0x2d8)][_0x2c57a4(0xce)](_0x16e81c[_0x2c57a4(0x1d0)]); }); _0x51fb0a[_0x19a293(0x1a7)](); } function updateCoverPreview(_0x36c88f) { const _0x180b17 = _0x53e529, _0x3598b4 = { 'hvjBy': function (_0x5a56e6, _0x2b2620) { return _0x5a56e6 === _0x2b2620; }, 'nTUkV': _0x180b17(0x212), 'DYLap': _0x180b17(0x22c), 'HLyit': 'file-upload-preview-item', 'rgNYf': '.file-upload-preview-item-remove', 'rOKoU': _0x180b17(0x195) }; coverPreview[_0x180b17(0xba)] = ''; if (_0x36c88f) { if (_0x3598b4[_0x180b17(0x2a1)](_0x3598b4['nTUkV'], _0x180b17(0x152))) { if (_0x576c15['trim']()) { const _0x1539d3 = _0x376d5d['createElement']('li'); _0x1539d3['textContent'] = _0x251cbf, _0x4a1f62[_0x180b17(0x159)](_0x1539d3); } } else { const _0x1127a7 = document['createElement'](_0x3598b4[_0x180b17(0x1ca)]); _0x1127a7[_0x180b17(0x230)] = _0x3598b4['HLyit'], _0x1127a7[_0x180b17(0xba)] = '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22' + _0x36c88f + '\x22\x20alt=\x22Cover\x20Preview\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22file-upload-preview-item-remove\x22>&times;</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', coverPreview[_0x180b17(0x159)](_0x1127a7), _0x1127a7['querySelector'](_0x3598b4[_0x180b17(0x2a9)])[_0x180b17(0x2d9)](_0x3598b4[_0x180b17(0x16c)], _0x566720 => { const _0x315f25 = _0x180b17; _0x566720[_0x315f25(0x13b)](), coverImageUrl = '', coverImageUrlInput[_0x315f25(0x1a0)] = '', coverPreview['innerHTML'] = ''; }); } } } function updateScreenshotsPreview(_0x60bd7e) { const _0x52ac9f = _0x53e529, _0x4a6751 = { 'xVboo': function (_0x4d2619) { return _0x4d2619(); }, 'XlRsv': function (_0x30ea4a, _0x3328dd) { return _0x30ea4a === _0x3328dd; }, 'sAihl': function (_0x46dc69, _0x245130) { return _0x46dc69(_0x245130); }, 'mvQaU': _0x52ac9f(0x2e1), 'Ljurp': _0x52ac9f(0x9e), 'gYuDA': _0x52ac9f(0x195), 'TFYIn': function (_0xdd7981, _0x272ac8) { return _0xdd7981 > _0x272ac8; } }; screenshotsPreview['innerHTML'] = '', _0x60bd7e && _0x4a6751[_0x52ac9f(0x1b8)](_0x60bd7e[_0x52ac9f(0xf1)], 0x0) && _0x60bd7e[_0x52ac9f(0x191)]((_0x3c29e9, _0x1690c8) => { const _0x2ac6a0 = _0x52ac9f, _0x140917 = { 'UyKIh': function (_0x19d3b7) { return _0x4a6751['xVboo'](_0x19d3b7); }, 'NQkZg': function (_0x1d353f, _0x5bdcca) { const _0x2137b1 = _0x3bb7; return _0x4a6751[_0x2137b1(0x109)](_0x1d353f, _0x5bdcca); }, 'vCWIB': 'ZeaAS', 'MKslL': function (_0x33f3a3, _0x34baab) { const _0x2bc66a = _0x3bb7; return _0x4a6751[_0x2bc66a(0xd9)](_0x33f3a3, _0x34baab); }, 'zFfDW': function (_0x29193c) { const _0x5b7d5e = _0x3bb7; return _0x4a6751[_0x5b7d5e(0x2b8)](_0x29193c); } }; if (_0x4a6751[_0x2ac6a0(0x11f)] !== _0x2ac6a0(0x1fe)) { const _0x5d7e92 = document[_0x2ac6a0(0x12e)](_0x2ac6a0(0x22c)); _0x5d7e92[_0x2ac6a0(0x230)] = 'file-upload-preview-item', _0x5d7e92[_0x2ac6a0(0xba)] = _0x2ac6a0(0xe2) + _0x3c29e9 + _0x2ac6a0(0x2b5) + _0x1690c8 + _0x2ac6a0(0xa6), screenshotsPreview[_0x2ac6a0(0x159)](_0x5d7e92), _0x5d7e92[_0x2ac6a0(0x1c8)](_0x4a6751[_0x2ac6a0(0x1ba)])[_0x2ac6a0(0x2d9)](_0x4a6751['gYuDA'], _0x1034cb => { const _0x378c41 = _0x2ac6a0, _0x173982 = { 'egroq': function (_0x55f971) { const _0x30682b = _0x3bb7; return _0x140917[_0x30682b(0x18e)](_0x55f971); } }; _0x140917[_0x378c41(0x218)](_0x140917[_0x378c41(0x1a5)], 'dmqzF') ? (_0x49cfdb(), _0x173982[_0x378c41(0x267)](_0x19c655)) : (_0x1034cb[_0x378c41(0x13b)](), screenshotsUrls[_0x378c41(0x164)](_0x1690c8, 0x1), screenshotsUrlsInput[_0x378c41(0x1a0)] = JSON['stringify'](screenshotsUrls), _0x140917[_0x378c41(0x275)](updateScreenshotsPreview, screenshotsUrls)); }); } else _0x29c211(), _0x250012(), _0x140917[_0x2ac6a0(0xe8)](_0x1e2f02); }); } async function loadGamesFromFirestore() { const _0x39a736 = _0x53e529, _0x129cf0 = { 'MPvtt': function (_0x5b6ab7, _0x3ac98e) { return _0x5b6ab7(_0x3ac98e); }, 'uRVJR': 'games', 'piPZm': function (_0x59792d, _0x1b905a) { return _0x59792d !== _0x1b905a; }, 'ImKGv': 'vFFKu', 'xREnD': _0x39a736(0xbb), 'vKnlp': 'Error\x20loading\x20games:' }; try { const _0x469893 = await db[_0x39a736(0x266)](_0x129cf0[_0x39a736(0xdc)])[_0x39a736(0xe1)](); return _0x469893[_0x39a736(0xe6)][_0x39a736(0xdb)](_0x3d0bda => ({ 'id': _0x3d0bda['id'], ..._0x3d0bda[_0x39a736(0x1d3)]() })); } catch (_0xe36100) { if (_0x129cf0[_0x39a736(0xdf)](_0x129cf0[_0x39a736(0x2da)], _0x129cf0[_0x39a736(0x289)])) return console[_0x39a736(0x1f2)](_0x129cf0[_0x39a736(0xf7)], _0xe36100), []; else _0x129cf0[_0x39a736(0x2df)](_0x4c9d59, _0x35a0ce); } } async function loadGamesByGameType(_0x1b447b) { const _0x54068f = _0x53e529, _0x4dc2ef = { 'GKaUE': 'div', 'rTgNE': _0x54068f(0x135), 'sSoOR': '.file-upload-preview-item-remove', 'sgaZj': 'click', 'TPrEA': _0x54068f(0x29c), 'kMLfS': function (_0x55248d, _0x409c2c) { return _0x55248d === _0x409c2c; }, 'lIzSE': _0x54068f(0x277) }; try { const _0x4104fb = await db['collection'](_0x4dc2ef['TPrEA'])['where'](_0x54068f(0x1ce), '==', _0x1b447b)['get'](); return _0x4104fb[_0x54068f(0xe6)][_0x54068f(0xdb)](_0x46a843 => ({ 'id': _0x46a843['id'], ..._0x46a843['data']() })); } catch (_0x1224eb) { if (_0x4dc2ef[_0x54068f(0xcc)](_0x4dc2ef['lIzSE'], _0x54068f(0x268))) { const _0x50773c = _0xbddcb3[_0x54068f(0x12e)](_0x4dc2ef[_0x54068f(0x205)]); _0x50773c[_0x54068f(0x230)] = _0x4dc2ef['rTgNE'], _0x50773c[_0x54068f(0xba)] = '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22' + _0x5d32f6 + _0x54068f(0x2b5) + _0x296cad + _0x54068f(0xa6), _0x52b2b9[_0x54068f(0x159)](_0x50773c), _0x50773c[_0x54068f(0x1c8)](_0x4dc2ef['sSoOR'])['addEventListener'](_0x4dc2ef['sgaZj'], _0x5fbfe1 => { const _0x260fd4 = _0x54068f; _0x5fbfe1[_0x260fd4(0x13b)](), _0x5b393f[_0x260fd4(0x164)](_0x2b49d7, 0x1), _0x58ba76[_0x260fd4(0x1a0)] = _0x42182b[_0x260fd4(0x215)](_0x5f1885), _0x4f9a89(_0x3418b8); }); } else return console[_0x54068f(0x1f2)](_0x54068f(0x201) + _0x1b447b + _0x54068f(0x242), _0x1224eb), []; } } async function loadUserGames(_0x8a8636) { const _0x556a5c = _0x53e529, _0x72a2d1 = { 'POBEO': _0x556a5c(0x22c), 'QFNrH': _0x556a5c(0x135), 'UhKOe': _0x556a5c(0x9e), 'oWLZU': 'click', 'MEvjS': function (_0x177e1b, _0x2a99dc) { return _0x177e1b === _0x2a99dc; }, 'XwUQi': 'alMSd', 'KEqdq': _0x556a5c(0x274), 'tVVzS': _0x556a5c(0x29c), 'dsKSG': _0x556a5c(0x11c) }; try { if (_0x72a2d1['MEvjS'](_0x72a2d1[_0x556a5c(0xa8)], _0x72a2d1['KEqdq'])) { _0x135cd4[_0x556a5c(0xba)] = ''; if (_0x55d1f8) { const _0x5459ed = _0x52b340[_0x556a5c(0x12e)](_0x72a2d1['POBEO']); _0x5459ed[_0x556a5c(0x230)] = _0x72a2d1[_0x556a5c(0x190)], _0x5459ed[_0x556a5c(0xba)] = _0x556a5c(0x1b2) + _0x550949 + _0x556a5c(0x2dc), _0x190060['appendChild'](_0x5459ed), _0x5459ed['querySelector'](_0x72a2d1[_0x556a5c(0x120)])[_0x556a5c(0x2d9)](_0x72a2d1[_0x556a5c(0xb2)], _0x26c9f0 => { const _0x55fc0d = _0x556a5c; _0x26c9f0[_0x55fc0d(0x13b)](), _0x2bc5a0 = '', _0x4d15e6['value'] = '', _0x7c95a9[_0x55fc0d(0xba)] = ''; }); } } else { const _0x240459 = await db[_0x556a5c(0x266)](_0x72a2d1[_0x556a5c(0x129)])['where'](_0x556a5c(0x11d), '==', _0x8a8636)[_0x556a5c(0xe1)](); return _0x240459[_0x556a5c(0xe6)][_0x556a5c(0xdb)](_0x19a534 => ({ 'id': _0x19a534['id'], ..._0x19a534['data']() })); } } catch (_0xf5fe73) { return console[_0x556a5c(0x1f2)](_0x72a2d1['dsKSG'], _0xf5fe73), []; } } async function addGameToFirestore(_0x38d1b7) { const _0x412f36 = _0x53e529, _0x48f32b = { 'AAdJn': _0x412f36(0x29c), 'RiNnM': function (_0x355e9e, _0x422d99) { return _0x355e9e === _0x422d99; }, 'dKfUV': 'qaAAU', 'mCNcM': _0x412f36(0x26c), 'sVZMU': _0x412f36(0x18b) }; try { const _0x42d0d0 = await db[_0x412f36(0x266)](_0x48f32b[_0x412f36(0x21e)])[_0x412f36(0xce)](_0x38d1b7); return { 'id': _0x42d0d0['id'], ..._0x38d1b7 }; } catch (_0x53fa0e) { if (_0x48f32b[_0x412f36(0x251)](_0x48f32b['dKfUV'], _0x48f32b[_0x412f36(0x2a5)])) _0x48ea45['features']['forEach'](_0x25daf4 => { const _0x2fc771 = _0x412f36; if (_0x25daf4[_0x2fc771(0x21d)]()) { const _0x4b71f0 = _0x5a2d2e[_0x2fc771(0x12e)]('li'); _0x4b71f0[_0x2fc771(0x1ea)] = _0x25daf4, _0x299735['appendChild'](_0x4b71f0); } }); else { console['error'](_0x48f32b['sVZMU'], _0x53fa0e); throw _0x53fa0e; } } } async function deleteGameFromFirestore(_0x2500d6) { const _0x2c674b = _0x53e529, _0x2da095 = { 'Zymus': function (_0x49b6bd, _0x2bff67) { return _0x49b6bd(_0x2bff67); }, 'PNlrA': _0x2c674b(0x211), 'mTeCs': _0x2c674b(0x22b), 'vYMVT': _0x2c674b(0x19b), 'RIgEs': _0x2c674b(0x29c) }; try { if (_0x2da095[_0x2c674b(0x2b4)] !== _0x2da095['vYMVT']) await db[_0x2c674b(0x266)](_0x2da095[_0x2c674b(0xa0)])[_0x2c674b(0x278)](_0x2500d6)[_0x2c674b(0x2e2)](); else return _0x2da095[_0x2c674b(0xa2)](_0x28a128, _0x2da095[_0x2c674b(0xbe)]), ![]; } catch (_0xdc2ebc) { console[_0x2c674b(0x1f2)]('Error\x20deleting\x20game:', _0xdc2ebc); throw _0xdc2ebc; } } async function isTitleUnique(_0x1e6749) { const _0x1a1026 = _0x53e529, _0x57896b = { 'VVIGT': _0x1a1026(0x29c), 'KxDkm': 'title', 'aAYQs': _0x1a1026(0x17e) }; try { const _0x2f4863 = await db[_0x1a1026(0x266)](_0x57896b[_0x1a1026(0x1e8)])[_0x1a1026(0x118)](_0x57896b[_0x1a1026(0x155)], '==', _0x1e6749)[_0x1a1026(0xe1)](); return _0x2f4863[_0x1a1026(0x2e9)]; } catch (_0x9c2ccb) { return console[_0x1a1026(0x1f2)](_0x57896b['aAYQs'], _0x9c2ccb), ![]; } } function checkAuthState() { const _0x369c0f = _0x53e529, _0x447368 = { 'djIwv': function (_0x358408, _0x38ce5b, _0x2daa1f) { return _0x358408(_0x38ce5b, _0x2daa1f); }, 'TPZbz': function (_0x4b2041, _0x4e6f94) { return _0x4b2041(_0x4e6f94); }, 'fQYMi': function (_0x172d27) { return _0x172d27(); }, 'sbwKF': function (_0x24a8bb, _0x16bab4) { return _0x24a8bb === _0x16bab4; }, 'jUaar': _0x369c0f(0x8e) }; auth['onAuthStateChanged'](_0x2db0de => { const _0x3963c6 = _0x369c0f, _0x1d5549 = { 'xSkOX': function (_0x1caccb, _0x48a24a, _0x10f969) { const _0x213bdf = _0x3bb7; return _0x447368[_0x213bdf(0x2a2)](_0x1caccb, _0x48a24a, _0x10f969); } }; _0x2db0de ? (currentUser = _0x2db0de, _0x447368['TPZbz'](updateUIForLoggedInUser, _0x2db0de), _0x447368[_0x3963c6(0x1ec)](showGameListings)) : _0x447368[_0x3963c6(0x241)](_0x447368[_0x3963c6(0xe9)], _0x447368[_0x3963c6(0xe9)]) ? (currentUser = null, _0x447368[_0x3963c6(0x1ec)](updateUIForLoggedOutUser)) : _0x1d5549['xSkOX'](_0x23a854, _0xaf177b, _0x530e29); }); } function updateUIForLoggedInUser(_0x200d48) { const _0x51e25e = _0x53e529; loggedOutDiv[_0x51e25e(0xc2)][_0x51e25e(0xd6)] = _0x51e25e(0xf4), loggedInDiv[_0x51e25e(0xc2)][_0x51e25e(0xd6)] = 'block', userEmailDisplay[_0x51e25e(0x1ea)] = _0x200d48[_0x51e25e(0x13f)]; } function updateUIForLoggedOutUser() { const _0x1a43c2 = _0x53e529, _0xbff884 = { 'CqhdA': _0x1a43c2(0x93), 'NwvEU': _0x1a43c2(0xf4), 'UlvGo': _0x1a43c2(0x153) }, _0x113e97 = _0xbff884['CqhdA'][_0x1a43c2(0x106)]('|'); let _0x142136 = 0x0; while (!![]) { switch (_0x113e97[_0x142136++]) { case '0': gameListings[_0x1a43c2(0xc2)][_0x1a43c2(0xd6)] = _0xbff884['NwvEU']; continue; case '1': myAccountsSection[_0x1a43c2(0xc2)][_0x1a43c2(0xd6)] = _0xbff884[_0x1a43c2(0x158)]; continue; case '2': sellAccountSection[_0x1a43c2(0xc2)][_0x1a43c2(0xd6)] = _0xbff884[_0x1a43c2(0x158)]; continue; case '3': loggedInDiv[_0x1a43c2(0xc2)][_0x1a43c2(0xd6)] = _0xbff884[_0x1a43c2(0x158)]; continue; case '4': heroSection['style'][_0x1a43c2(0xd6)] = _0xbff884[_0x1a43c2(0x21f)]; continue; case '5': loggedOutDiv['style'][_0x1a43c2(0xd6)] = _0xbff884[_0x1a43c2(0x21f)]; continue; }break; } } function openLoginModal() { const _0x2cefe2 = _0x53e529, _0x5a353e = { 'UjGeM': _0x2cefe2(0x1b4) }; loginModal[_0x2cefe2(0xc2)]['display'] = _0x5a353e[_0x2cefe2(0x219)]; } function closeLoginModal() { const _0x2a0995 = _0x53e529, _0x18c65a = { 'uYvfB': 'none' }; loginModal['style'][_0x2a0995(0xd6)] = _0x18c65a[_0x2a0995(0x2be)]; } function openScreenshotsModal(_0x5b7f2e) { const _0x3670b6 = _0x53e529, _0x5eb758 = { 'tthHi': 'screenshot-item' }; currentGameForScreenshots = _0x5b7f2e, screenshotsGameTitle[_0x3670b6(0x1ea)] = _0x5b7f2e[_0x3670b6(0xd3)] + _0x3670b6(0x217), screenshotsGrid[_0x3670b6(0xba)] = '', _0x5b7f2e['screenshots'][_0x3670b6(0x191)](_0x3e0282 => { const _0x37bb87 = _0x3670b6, _0x1ff667 = document[_0x37bb87(0x12e)](_0x37bb87(0x22c)); _0x1ff667[_0x37bb87(0x230)] = _0x5eb758[_0x37bb87(0xb4)], _0x1ff667[_0x37bb87(0xba)] = _0x37bb87(0x2ab) + _0x3e0282 + _0x37bb87(0x124), screenshotsGrid['appendChild'](_0x1ff667); }), screenshotsModal[_0x3670b6(0xc2)][_0x3670b6(0xd6)] = _0x3670b6(0x1b4); } function closeScreenshotsModal() { const _0x241ec7 = _0x53e529, _0x375994 = { 'fDeDP': 'none' }; screenshotsModal[_0x241ec7(0xc2)]['display'] = _0x375994[_0x241ec7(0x113)], currentGameForScreenshots = null; } function openAccountDetailsModal(_0x9f5665) { const _0x59862e = _0x53e529, _0x514b3c = { 'ROXdR': _0x59862e(0x22c), 'NvjgN': 'screenshot-item', 'sTQNo': function (_0x2aa1da) { return _0x2aa1da(); }, 'CdPut': _0x59862e(0xca), 'tsndr': function (_0x508721, _0x4f4f0f) { return _0x508721 > _0x4f4f0f; }, 'WpwtU': _0x59862e(0x15e), 'Whrjz': function (_0x3f76da, _0x40a2e7) { return _0x3f76da > _0x40a2e7; }, 'UaaDJ': 'utVhg', 'triPJ': _0x59862e(0x23d), 'HqOKD': _0x59862e(0xc0), 'wKNhW': _0x59862e(0x1b4) }; currentAccountDetails = _0x9f5665, accountDetailsTitle[_0x59862e(0x1ea)] = _0x9f5665[_0x59862e(0xd3)], accountDetailsCover[_0x59862e(0xc2)][_0x59862e(0x22a)] = 'url(\x27' + _0x9f5665[_0x59862e(0x272)] + '\x27)', accountDetailsPrice[_0x59862e(0x1ea)] = _0x9f5665['price'] + _0x59862e(0x12b), accountDetailsGame[_0x59862e(0x1ea)] = _0x9f5665[_0x59862e(0x1ce)], accountDetailsPlatform[_0x59862e(0x1ea)] = _0x9f5665['platform'], accountDetailsLevel[_0x59862e(0x1ea)] = _0x9f5665[_0x59862e(0x1c2)] || _0x514b3c[_0x59862e(0x12d)], accountDetailsStatus[_0x59862e(0x1ea)] = _0x9f5665[_0x59862e(0x103)], accountDetailsDescription[_0x59862e(0x1ea)] = _0x9f5665[_0x59862e(0x25d)], accountDetailsSeller[_0x59862e(0x1ea)] = _0x9f5665[_0x59862e(0x108)], accountDetailsFeatures[_0x59862e(0xba)] = '', _0x9f5665[_0x59862e(0x250)] && _0x514b3c[_0x59862e(0x23b)](_0x9f5665[_0x59862e(0x250)]['length'], 0x0) ? _0x9f5665[_0x59862e(0x250)]['forEach'](_0x244c5d => { const _0x542741 = _0x59862e; if (_0x244c5d[_0x542741(0x21d)]()) { const _0x37612e = document[_0x542741(0x12e)]('li'); _0x37612e[_0x542741(0x1ea)] = _0x244c5d, accountDetailsFeatures['appendChild'](_0x37612e); } }) : accountDetailsFeatures[_0x59862e(0xba)] = _0x514b3c[_0x59862e(0x2a6)], accountDetailsScreenshots[_0x59862e(0xba)] = '', _0x9f5665[_0x59862e(0x28c)] && _0x514b3c[_0x59862e(0xb0)](_0x9f5665[_0x59862e(0x28c)][_0x59862e(0xf1)], 0x0) ? _0x9f5665[_0x59862e(0x28c)][_0x59862e(0x191)](_0x685a4e => { const _0x30ea43 = _0x59862e, _0x5637f4 = document[_0x30ea43(0x12e)](_0x514b3c['ROXdR']); _0x5637f4['className'] = _0x514b3c[_0x30ea43(0x2b9)], _0x5637f4[_0x30ea43(0xba)] = _0x30ea43(0x2ab) + _0x685a4e + _0x30ea43(0x124), accountDetailsScreenshots[_0x30ea43(0x159)](_0x5637f4); }) : _0x514b3c[_0x59862e(0x2ac)] === _0x514b3c[_0x59862e(0xb3)] ? _0x514b3c[_0x59862e(0x2e3)](_0x5b1bd8) : accountDetailsScreenshots['innerHTML'] = _0x514b3c[_0x59862e(0x20a)], accountDetailsModal[_0x59862e(0xc2)]['display'] = _0x514b3c[_0x59862e(0x1db)]; } function closeAccountDetailsModal() { const _0x2f7ce7 = _0x53e529; accountDetailsModal['style'][_0x2f7ce7(0xd6)] = _0x2f7ce7(0xf4), currentAccountDetails = null; } function handleAccountDetailsBuy() { const _0x376f91 = _0x53e529, _0x25d4dd = { 'PmVFc': _0x376f91(0x1d8), 'WZfuy': _0x376f91(0x280), 'GJFZa': function (_0x433816, _0x884332) { return _0x433816 !== _0x884332; }, 'LjZAt': _0x376f91(0x24d), 'SRssj': _0x376f91(0x2a3), 'kmoGy': function (_0x2033cb) { return _0x2033cb(); }, 'PpQAb': function (_0x2d60c6) { return _0x2d60c6(); }, 'UNPcJ': function (_0x3486a6, _0x3b0a18) { return _0x3486a6 === _0x3b0a18; }, 'gFluj': _0x376f91(0x2a8), 'merXR': function (_0x345698, _0x296838) { return _0x345698(_0x296838); }, 'tgQza': _0x376f91(0x137) }; if (!currentUser) _0x25d4dd['GJFZa'](_0x25d4dd['LjZAt'], _0x25d4dd[_0x376f91(0x226)]) ? (_0x25d4dd[_0x376f91(0x110)](closeAccountDetailsModal), _0x25d4dd[_0x376f91(0x156)](openLoginModal)) : (_0x5e9a9d[_0x376f91(0x2d8)][_0x376f91(0xce)](_0x376f91(0x12a)), _0x5d9f00['classList'][_0x376f91(0x1b6)](_0x25d4dd[_0x376f91(0x243)])); else { if (currentAccountDetails) { if (_0x25d4dd['UNPcJ'](_0x25d4dd[_0x376f91(0xcf)], _0x376f91(0x1dc))) _0x2ba7f1[_0x376f91(0x1f2)](_0x25d4dd['WZfuy'], _0x4aa241); else { const _0x9ac150 = _0x25d4dd[_0x376f91(0xec)](encodeURIComponent, _0x376f91(0x227) + currentAccountDetails[_0x376f91(0xd3)] + _0x376f91(0x24e) + currentAccountDetails['sellerEmail'] + _0x376f91(0x1cb) + currentAccountDetails[_0x376f91(0xfb)] + _0x376f91(0xd2) + currentUser[_0x376f91(0x13f)] + '.\x20Thank\x20you!'); window['open'](_0x376f91(0x196) + _0x9ac150, _0x25d4dd[_0x376f91(0xea)]); } } } } function showGameListings(_0x1510d7) { const _0x567989 = _0x53e529, _0x5ac79a = { 'gYoAE': function (_0x1c37e1) { return _0x1c37e1(); }, 'AEAuo': function (_0x3f74ac, _0x53e76a) { return _0x3f74ac !== _0x53e76a; }, 'vkmVU': _0x567989(0x188), 'xsucQ': _0x567989(0x183), 'JlUEo': _0x567989(0xe3), 'ZDEhq': 'none', 'KlcCM': function (_0xa06c53) { return _0xa06c53(); }, 'cZvFk': _0x567989(0x153), 'irxmN': _0x567989(0x12a), 'KEjqL': function (_0x1b1fe4, _0x38feb8) { return _0x1b1fe4(_0x38feb8); }, 'owFSK': _0x567989(0x208) }; if (_0x1510d7) _0x1510d7['preventDefault'](); if (!currentUser) { if (_0x5ac79a[_0x567989(0x114)](_0x5ac79a[_0x567989(0x2cb)], _0x5ac79a[_0x567989(0x1f3)])) { const _0x1e89fc = _0x5ac79a[_0x567989(0xe0)]['split']('|'); let _0x55cdd0 = 0x0; while (!![]) { switch (_0x1e89fc[_0x55cdd0++]) { case '0': return; case '1': myAccountsSection['style'][_0x567989(0xd6)] = _0x5ac79a[_0x567989(0x264)]; continue; case '2': _0x5ac79a[_0x567989(0x166)](openLoginModal); continue; case '3': gameListings[_0x567989(0xc2)][_0x567989(0xd6)] = _0x5ac79a['ZDEhq']; continue; case '4': heroSection[_0x567989(0xc2)][_0x567989(0xd6)] = _0x567989(0x153); continue; case '5': sellAccountSection['style']['display'] = _0x5ac79a[_0x567989(0x264)]; continue; }break; } } else _0x5ac79a[_0x567989(0x273)](_0x393002); } heroSection[_0x567989(0xc2)][_0x567989(0xd6)] = _0x5ac79a[_0x567989(0x264)], gameListings[_0x567989(0xc2)][_0x567989(0xd6)] = _0x5ac79a[_0x567989(0x162)], myAccountsSection[_0x567989(0xc2)]['display'] = 'none', sellAccountSection[_0x567989(0xc2)]['display'] = 'none', navLinks['classList'][_0x567989(0x1b6)](_0x5ac79a[_0x567989(0x199)]), _0x5ac79a[_0x567989(0xfa)](setActiveTab, _0x5ac79a[_0x567989(0x1cf)]), _0x5ac79a[_0x567989(0x166)](loadGameListings); } async function showMyAccounts(_0x62c62d) { const _0x38f222 = _0x53e529, _0x355a01 = { 'lVLsO': 'none', 'kuXVb': _0x38f222(0x153) }; if (_0x62c62d) _0x62c62d[_0x38f222(0x175)](); if (!currentUser) { const _0x4864ea = _0x38f222(0xc4)[_0x38f222(0x106)]('|'); let _0x1a9fef = 0x0; while (!![]) { switch (_0x4864ea[_0x1a9fef++]) { case '0': sellAccountSection['style'][_0x38f222(0xd6)] = _0x355a01[_0x38f222(0x1b7)]; continue; case '1': myAccountsSection[_0x38f222(0xc2)][_0x38f222(0xd6)] = _0x355a01[_0x38f222(0x1b7)]; continue; case '2': gameListings[_0x38f222(0xc2)][_0x38f222(0xd6)] = _0x38f222(0xf4); continue; case '3': heroSection[_0x38f222(0xc2)][_0x38f222(0xd6)] = _0x355a01[_0x38f222(0x27b)]; continue; case '4': return; case '5': openLoginModal(); continue; }break; } } heroSection[_0x38f222(0xc2)][_0x38f222(0xd6)] = _0x355a01[_0x38f222(0x1b7)], gameListings['style'][_0x38f222(0xd6)] = _0x355a01['lVLsO'], myAccountsSection['style']['display'] = 'block', sellAccountSection['style'][_0x38f222(0xd6)] = _0x38f222(0xf4), navLinks['classList']['remove'](_0x38f222(0x12a)), await loadMyAccounts(); } function showSellAccount(_0x255e9f) { const _0x5dad2a = _0x53e529, _0x15724b = { 'TkIxs': function (_0x11c34b) { return _0x11c34b(); }, 'nWotc': function (_0x13cf73, _0x18733f) { return _0x13cf73 === _0x18733f; }, 'WtfJW': 'OUGhm', 'VnHoF': _0x5dad2a(0xd8), 'kMjzz': _0x5dad2a(0xaa), 'zadqy': 'none', 'ITiGU': _0x5dad2a(0x153), 'ULguK': _0x5dad2a(0x12a) }; if (_0x255e9f) _0x255e9f[_0x5dad2a(0x175)](); if (!currentUser) { if (_0x15724b[_0x5dad2a(0x179)](_0x15724b['WtfJW'], _0x15724b[_0x5dad2a(0x2c3)])) _0x15724b['TkIxs'](_0x48c984), _0x471499(_0x157e5b[_0x5dad2a(0xeb)]); else { const _0x561dde = _0x15724b[_0x5dad2a(0x1f5)]['split']('|'); let _0x1138d3 = 0x0; while (!![]) { switch (_0x561dde[_0x1138d3++]) { case '0': gameListings[_0x5dad2a(0xc2)]['display'] = 'none'; continue; case '1': sellAccountSection[_0x5dad2a(0xc2)][_0x5dad2a(0xd6)] = 'none'; continue; case '2': return; case '3': myAccountsSection['style'][_0x5dad2a(0xd6)] = _0x15724b[_0x5dad2a(0x2a4)]; continue; case '4': _0x15724b[_0x5dad2a(0x160)](openLoginModal); continue; case '5': heroSection[_0x5dad2a(0xc2)]['display'] = _0x15724b[_0x5dad2a(0x14d)]; continue; }break; } } } heroSection['style'][_0x5dad2a(0xd6)] = _0x5dad2a(0xf4), gameListings[_0x5dad2a(0xc2)][_0x5dad2a(0xd6)] = _0x15724b[_0x5dad2a(0x2a4)], myAccountsSection[_0x5dad2a(0xc2)][_0x5dad2a(0xd6)] = _0x15724b['zadqy'], sellAccountSection[_0x5dad2a(0xc2)][_0x5dad2a(0xd6)] = _0x15724b['ITiGU'], navLinks[_0x5dad2a(0x2d8)][_0x5dad2a(0x1b6)](_0x15724b[_0x5dad2a(0x181)]), resetSellForm(); } function setActiveTab(_0x2b2dbb) { const _0x3a6cc6 = _0x53e529, _0x1ffe18 = { 'YkQzo': function (_0x5dbf11, _0x366032) { return _0x5dbf11 === _0x366032; }, 'YSREs': _0x3a6cc6(0x12a), 'FYGpi': function (_0x3d819c, _0x2f3fb7) { return _0x3d819c(_0x2f3fb7); }, 'zKDog': 'Please\x20upload\x20a\x20cover\x20image', 'LhpsC': function (_0x1cbc76, _0x24aa56) { return _0x1cbc76 < _0x24aa56; }, 'mdKKC': function (_0x54ca57, _0x4d79f3) { return _0x54ca57 === _0x4d79f3; }, 'HWyza': function (_0x57fa00, _0x2f545f) { return _0x57fa00 !== _0x2f545f; }, 'TSutf': _0x3a6cc6(0x10b) }; tabs[_0x3a6cc6(0x191)](_0xb55a36 => { const _0x41ec89 = _0x3a6cc6; _0x1ffe18[_0x41ec89(0x24c)](_0xb55a36[_0x41ec89(0x2e0)]['tab'], _0x2b2dbb) ? _0xb55a36[_0x41ec89(0x2d8)][_0x41ec89(0xce)](_0x1ffe18[_0x41ec89(0x255)]) : _0xb55a36[_0x41ec89(0x2d8)]['remove'](_0x1ffe18['YSREs']); }), tabContents[_0x3a6cc6(0x191)](_0x2a5653 => { const _0x32de25 = _0x3a6cc6, _0x575163 = { 'cTwXi': function (_0x41326c, _0x423190) { const _0x23abcb = _0x3bb7; return _0x1ffe18[_0x23abcb(0x288)](_0x41326c, _0x423190); }, 'BRTTb': _0x1ffe18[_0x32de25(0x1a1)], 'gNmGa': function (_0x3e7cb9, _0x1db10f) { const _0x4ca673 = _0x32de25; return _0x1ffe18[_0x4ca673(0xa7)](_0x3e7cb9, _0x1db10f); } }; if (_0x1ffe18[_0x32de25(0x197)](_0x2a5653['id'], _0x2b2dbb)) { if (_0x1ffe18[_0x32de25(0x185)](_0x1ffe18['TSutf'], _0x1ffe18[_0x32de25(0x2d0)])) { if (!_0x44ea11) return _0x575163[_0x32de25(0x2d6)](_0x195031, _0x575163[_0x32de25(0x17f)]), ![]; if (_0x575163[_0x32de25(0x172)](_0x4d0c22[_0x32de25(0xf1)], 0x2)) return _0x37d28a('Please\x20upload\x20at\x20least\x202\x20screenshots'), ![]; return !![]; } else _0x2a5653[_0x32de25(0x2d8)]['add'](_0x1ffe18[_0x32de25(0x255)]); } else _0x2a5653[_0x32de25(0x2d8)]['remove'](_0x1ffe18[_0x32de25(0x255)]); }); } function handleTabClick(_0x224bb3) { const _0x1ca78f = _0x53e529, _0x20fe50 = { 'yTqYb': function (_0x202e20, _0x175743) { return _0x202e20 === _0x175743; }, 'CcABo': _0x1ca78f(0xc9), 'ZmriG': function (_0x3703e9, _0x49cdd9) { return _0x3703e9 === _0x49cdd9; }, 'hbOyB': function (_0x19682a, _0x46cff6, _0x955a72) { return _0x19682a(_0x46cff6, _0x955a72); }, 'Qpjxs': function (_0x427252, _0x4a0e82) { return _0x427252(_0x4a0e82); }, 'hIiCy': function (_0x44a039, _0x360013) { return _0x44a039 > _0x360013; }, 'ETZxG': 'click', 'Kwrgb': _0x1ca78f(0x146), 'PROCP': function (_0x5588c2, _0x4937eb) { return _0x5588c2 === _0x4937eb; }, 'QBwKI': _0x1ca78f(0x1e7), 'XbZQI': function (_0x1cde11, _0x4f8359) { return _0x1cde11 !== _0x4f8359; }, 'XMqix': 'MYSjM', 'tfgux': _0x1ca78f(0x1b3), 'jwbFP': function (_0x279f4e) { return _0x279f4e(); }, 'erWoA': _0x1ca78f(0x1a2), 'UdLeB': _0x1ca78f(0x24a), 'ggjUi': _0x1ca78f(0x1c6), 'IVhIl': function (_0x383be9, _0x26b1a1) { return _0x383be9 === _0x26b1a1; }, 'rctzs': _0x1ca78f(0x2dd) }, _0x294d85 = this[_0x1ca78f(0x2e0)][_0x1ca78f(0x1f0)]; _0x20fe50[_0x1ca78f(0x11b)](setActiveTab, _0x294d85); if (_0x20fe50[_0x1ca78f(0x29f)](_0x294d85, _0x20fe50[_0x1ca78f(0x2b2)])) _0x20fe50[_0x1ca78f(0x1ac)](_0x20fe50[_0x1ca78f(0xc6)], _0x20fe50[_0x1ca78f(0xdd)]) ? _0x20fe50[_0x1ca78f(0x257)](loadFreeFireGames) : _0x20fe50['yTqYb'](_0x2ec8a5['status'], _0x20fe50['CcABo']) && _0x305a74(_0x37c589, _0x44c0b9); else { if (_0x294d85 === _0x20fe50[_0x1ca78f(0x291)]) _0x20fe50[_0x1ca78f(0x257)](loadPUBGGames); else { if (_0x20fe50[_0x1ca78f(0x163)](_0x294d85, _0x20fe50[_0x1ca78f(0x2ba)])) _0x20fe50['PROCP'](_0x20fe50['ggjUi'], _0x20fe50['ggjUi']) ? _0x20fe50['jwbFP'](loadBloodStrikeGames) : _0x20fe50[_0x1ca78f(0x2b6)](_0x3ae5b4[_0x1ca78f(0x103)], _0x20fe50['CcABo']) && _0x20fe50[_0x1ca78f(0x28a)](_0x4d4290, _0x1d79ad, _0x53a8e0); else { if (_0x20fe50[_0x1ca78f(0x1b0)](_0x294d85, _0x20fe50[_0x1ca78f(0x202)])) loadPESGames(); else { if (_0x20fe50[_0x1ca78f(0x1ac)]('HQyxf', 'OVrjH')) _0x20fe50['jwbFP'](loadGameListings); else { const _0x500c85 = { 'nEdzk': function (_0x5e2eea, _0x109981) { const _0x3ee6c7 = _0x1ca78f; return _0x20fe50[_0x3ee6c7(0x11b)](_0x5e2eea, _0x109981); }, 'qYyQh': function (_0xf8edb, _0x348cdd) { const _0x38d375 = _0x1ca78f; return _0x20fe50[_0x38d375(0x11b)](_0xf8edb, _0x348cdd); } }, _0x50e8d2 = _0x1d47f8[_0x1ca78f(0x12e)](_0x1ca78f(0x22c)); _0x50e8d2[_0x1ca78f(0x230)] = _0x1ca78f(0x144), _0x50e8d2['innerHTML'] = _0x1ca78f(0xed) + _0x4c1b56[_0x1ca78f(0x272)] + '\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22game-seller\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<i\x20class=\x22fas\x20fa-user\x22></i>\x20' + _0x349036[_0x1ca78f(0x108)][_0x1ca78f(0x106)]('@')[0x0] + _0x1ca78f(0x139) + (_0x1c94b2[_0x1ca78f(0x28c)] && _0x20fe50[_0x1ca78f(0x20c)](_0x5b1d8b[_0x1ca78f(0x28c)][_0x1ca78f(0xf1)], 0x0) ? _0x1ca78f(0x170) + _0x53a41b['id'] + '\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<i\x20class=\x22fas\x20fa-images\x22></i>\x20' + _0x216afe['screenshots'][_0x1ca78f(0xf1)] + _0x1ca78f(0x1a9) : '') + _0x1ca78f(0x1a4) + _0xfefcd[_0x1ca78f(0xd3)] + _0x1ca78f(0x2ae) + _0x155e2f['game'] + _0x1ca78f(0x14c) + _0x434124[_0x1ca78f(0x231)] + _0x1ca78f(0x193) + (_0x17c36e['level'] ? '<p\x20class=\x22game-platform\x22>' + _0x1160c1[_0x1ca78f(0x1c2)] + _0x1ca78f(0x27c) : '') + _0x1ca78f(0x133) + _0x2e6abd[_0x1ca78f(0xfb)] + '\x20EGP</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', _0x36f176['appendChild'](_0x50e8d2), _0x50e8d2['addEventListener'](_0x20fe50['ETZxG'], () => { const _0x5194ea = _0x1ca78f; _0x500c85[_0x5194ea(0x27a)](_0x3ac858, _0x126821); }); const _0x5ac0e9 = _0x50e8d2[_0x1ca78f(0x1c8)](_0x20fe50['Kwrgb']); _0x5ac0e9 && _0x5ac0e9[_0x1ca78f(0x2d9)](_0x20fe50[_0x1ca78f(0x18c)], _0x3ba731 => { const _0x5568c9 = _0x1ca78f; _0x3ba731['stopPropagation'](), _0x500c85[_0x5568c9(0x122)](_0x2c85e7, _0x44cccc); }); } } } } } } function _0x7601() { const _0x4f6bb4 = ['LCSEu', 'block', 'JWUzh', 'KxDkm', 'PpQAb', 'NZnyI', 'NwvEU', 'appendChild', 'zdQlx', 'mWedS', 'afqxT', 'pubg-grid', '<li>No\x20features\x20listed</li>', 'CsmFr', 'TkIxs', 'uid', 'cZvFk', 'yTqYb', 'splice', 'lgPuX', 'KlcCM', 'QeemB', 'VUmgx', 'QKvLP', '11oBkJHn', '.btn-prev', 'rOKoU', 'preview-level', 'bvLkd', 'GTICH', '<div\x20class=\x22game-screenshots\x22\x20data-id=\x22', 'tYqYV', 'gNmGa', 'screenshots-grid', 'push', 'preventDefault', 'ooDKQ', 'goqTp', 'Status', 'nWotc', 'account-game', 'AhlfX', 'hrHVd', 'eWPAP', 'Error\x20checking\x20title\x20uniqueness:', 'BRTTb', 'secure_url', 'ULguK', 'minimal', 'VoRwr', '.tab-content', 'HWyza', '\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<i\x20class=\x22fas\x20fa-images\x22></i>\x20', '5KbSEMP', 'KtLvq', 'BsjfW', 'GzMYJ', 'Error\x20adding\x20game:', 'ETZxG', 'oyeCk', 'UyKIh', 'screenshots-preview', 'QFNrH', 'forEach', 'OunJe', '</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', 'account-details-platform', 'click', 'https://wa.me/+201010945629?text=', 'mdKKC', 'RPwDA', 'irxmN', 'bFyDr', 'cBEPp', 'login-password', 'Platform', 'YFzsG', 'TOkIh', 'value', 'zKDog', 'pubg', 'jkohr', '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22game-info\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h3\x20class=\x22game-title\x22>', 'vCWIB', 'DdXLT', 'open', 'Nfrxs', '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>', 'pcZXQ', '153097537918', 'XbZQI', 'jZgOH', '<p\x20class=\x22game-platform\x22>', 'yUKse', 'IVhIl', 'user-email-display', '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22', 'hbuzM', 'flex', 'account-details-price', 'remove', 'lVLsO', 'TFYIn', 'FieldValue', 'Ljurp', 'sqFAF', 'vgVRp', 'QiACo', 'account-details-description', 'uOnAu', 'JIVYS', 'wEeMZ', 'level', 'AqBnP', 'BuVRP', 'jrtvZ', 'wDXAk', 'data-next', 'querySelector', 'vXEDj', 'DYLap', '\x20for\x20', 'Mgqvw', 'Error\x20loading\x20game\x20listings:', 'game', 'owFSK', 'xnuah', 'JkdIR', 'yApkG', 'data', 'cover', 'Error\x20loading\x20user\x20accounts:', 'contact-admin-link', 'TEdPO', 'completed', 'DBXQG', '.form-section.active', 'wKNhW', 'rzSSD', 'GKyOQ', 'RxOcv', 'borderRadius', 'GisdI', 'Wsxjf', 'EDuHE', 'oMyDs', 'login-email', 'CNUgk', 'getAttribute', 'freefire', 'VVIGT', 'WCKuf', 'textContent', 'Are\x20you\x20sure\x20you\x20want\x20to\x20delete\x20this\x20account\x20listing?', 'fQYMi', 'logout-btn', 'logged-out', '</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22account-actions\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20class=\x22delete-btn\x22\x20data-id=\x22', 'tab', 'info', 'error', 'xsucQ', 'rfDfq', 'kMjzz', 'auth', 'HJOlD', 'UWGtA', 'KsMqB', 'AIzaSyCgzIRfsGcWsQapfzYzJ438NFEKPl-8FME', 'PoOTl', 'PGBTt', 'pGCNt', 'ecwCl', 'account-details-screenshots', 'account-price', 'Error\x20loading\x20', 'rctzs', 'lNQEQ', 'jpg', 'GKaUE', 'AKhCv', 'jtwfV', 'all-accounts', '88VLaLuU', 'HqOKD', 'mSEzf', 'hIiCy', '#282828', 'PES', 'tXrYE', 'Xbuyg', 'Please\x20upload\x20a\x20cover\x20image', 'BSzKi', 'ttPWy', 'An\x20account\x20with\x20this\x20title\x20already\x20exists.\x20Please\x20choose\x20a\x20different\x20title.', 'stringify', 'MRhyh', '\x20-\x20Screenshots', 'NQkZg', 'UjGeM', 'TCPxU', 'nfIJi', 'event', 'trim', 'AAdJn', 'UlvGo', 'YdMRY', 'toggle', 'lRxZs', 'YPbOt', 'gFLqp', 'hero-section', 'SRssj', 'Hello,\x20I\x27d\x20like\x20to\x20buy\x20\x22', 'SAHvE', 'uEXtj', 'backgroundImage', 'dJUaY', 'div', '#1DB954', 'Please\x20login\x20to\x20post\x20an\x20account', 'SnDAA', 'className', 'platform', 'pixel-clash-arena.firebaseapp.com', 'then', 'sell-account-form', 'MMcod', 'sell-link', 'SXUGs', 'Error\x20posting\x20account:', 'G-58KHN79L7N', 'focus', 'tsndr', 'lOMyC', 'lhDzP', 'bBCvr', 'HVksL', 'PcraT', 'sbwKF', '\x20games:', 'PmVFc', 'PUBG', 'MPPpt', 'TptZI', 'ZlupO', 'screenshots-modal', 'xNJwe', 'bloodstrike', 'tFQsa', 'YkQzo', 'RQoLS', '\x22\x20from\x20', 'jRZxE', 'features', 'RiNnM', 'upload-cover-btn', 'TcEna', 'cloudinary', 'YSREs', '112491QMmxqa', 'jwbFP', 'includes', 'Error\x20loading\x20Blood\x20Strike\x20games:', 'NFpIE', 'SSphQ', 'BBRtN', 'description', 'rleel', 'preview-description', 'Description', 'aZdjd', 'emXTU', 'height', 'ZDEhq', 'account-details-features', 'collection', 'egroq', 'grYnv', 'YXbIh', '4753LOtgfL', 'bxCji', 'pneGU', '1155519MOtvpN', 'mmmUi', 'getElementById', 'tBTnz', 'CMNyb', 'image', 'gYoAE', 'Tikej', 'MKslL', '.tab', 'HhlnL', 'doc', 'account-description', 'nEdzk', 'kuXVb', '</p>', 'Game', 'nZIlS', 'account-features', 'Error\x20loading\x20Free\x20Fire\x20games:', 'Error\x20loading\x20PES\x20games:', 'DfDOY', '1472058mxJRko', 'MEHod', 'onAuthStateChanged', 'backgroundSize', 'account-title', 'FYGpi', 'xREnD', 'hbOyB', 'pixel-clash-arena.appspot.com', 'screenshots', 'browse-link', 'euiYZ', 'preview-title', 'KVEYG', 'erWoA', '768jDZJpw', '.\x20Thank\x20you!', 'BBTOt', 'sell-account-section', 'SLvkU', 'YXZkV', 'querySelectorAll', 'NEGCd', 'url', 'zPjfy', 'games', 'AbscZ', 'YdLeE', 'PROCP', 'OqBcb', 'hvjBy', 'djIwv', 'AlQeH', 'zadqy', 'mCNcM', 'WpwtU', 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap', 'mrPvf', 'rgNYf', 'logged-in', '<img\x20src=\x22', 'UaaDJ', 'my-accounts-link', '</h3>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22game-platform\x22>', 'uaPDz', 'BXkLW', 'cisiN', 'QBwKI', 'Please\x20fill\x20in\x20the\x20', 'mTeCs', '\x22\x20alt=\x22Screenshot\x20Preview\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22file-upload-preview-item-remove\x22\x20data-index=\x22', 'ZmriG', 'createUploadWidget', 'xVboo', 'NvjgN', 'UdLeB', 'close-account-details', 'IKKVt', '\x20EGP</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22game-platform\x22>Status:\x20', 'uYvfB', 'rtQhA', 'account-details-buy-btn', 'SXYbj', 'bfbqE', 'VnHoF', 'step', '.delete-btn', 'Xlucw', 'aDEmC', 'center', 'VGbAM', 'LePGQ', 'vkmVU', '906924vNrSsU', 'uEcZx', 'HNgtb', 'EMNnO', 'TSutf', 'game_accounts', 'PMOEP', 'efXuT', 'screenshots-game-title', 'tcznk', 'cTwXi', 'preview-game', 'classList', 'addEventListener', 'ImKGv', 'aacWQ', '\x22\x20alt=\x22Cover\x20Preview\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22file-upload-preview-item-remove\x22>&times;</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', 'pes', 'OLFjX', 'MPvtt', 'dataset', 'eKloN', 'delete', 'sTQNo', 'PDGQf', 'YMNzI', 'RzUWl', 'section', 'iIfDn', 'empty', 'width', 'wpSxM', 'cVoLl', '#B3B3B3', 'ykcGa', 'account-details-game', 'https://pixel-clash-arena-default-rtdb.firebaseio.com', 'submit', 'bHJra', 'xkbYk', 'VwKtF', 'Price\x20must\x20be\x20greater\x20than\x200', 'AJXmF', 'Lxujn', 'NsFbR', 'hero-sell-btn', 'Failed\x20to\x20post\x20account.\x20Error:\x20', 'rSdCM', '5|3|4|0|1|2', 'pdEho', 'YwCnY', 'hzhoF', 'account-details-seller', 'screenshots-upload-area', 'ZFbyn', 'IULzO', 'TqPUM', 'VLxFJ', 'pkmwP', '.file-upload-preview-item-remove', 'KRexY', 'RIgEs', 'FHZZb', 'Zymus', 'eTfOa', 'freefire-grid', 'cover-image-url', '\x22>&times;</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', 'LhpsC', 'XwUQi', 'xWDXF', '5|0|3|1|4|2', 'eLXdc', '.form-section[data-section=\x22', 'xyUHH', 'jGtDo', 'YuAZr', 'Whrjz', 'GsuHW', 'oWLZU', 'triPJ', 'tthHi', 'my-accounts', 'jnpdb', 'nnCEQ', 'jGmGW', 'Account\x20posted\x20successfully!', 'innerHTML', 'OZNNl', 'QwVWK', '15133800RrQDFS', 'PNlrA', 'preview-cover', '<p>No\x20screenshots\x20available</p>', 'success', 'style', 'add-account-btn', '3|2|1|0|5|4', 'BSYcK', 'XMqix', 'rQKuo', 'firestore', 'Available', 'N/A', '80px', 'kMLfS', 'reset', 'add', 'gFluj', 'Price', '\x20field', '\x20EGP.\x20I\x27m\x20', 'title', '\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22game-seller\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<i\x20class=\x22fas\x20fa-user\x22></i>\x20', '\x22>Delete</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', 'display', 'storage', 'obqlu', 'sAihl', 'sITli', 'map', 'uRVJR', 'tfgux', 'DyTxO', 'piPZm', 'JlUEo', 'get', '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<img\x20src=\x22', '4|3|1|5|2|0', 'eXmGm', 'name', 'docs', 'VDrUt', 'zFfDW', 'jUaar', 'tgQza', 'user', 'merXR', '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22game-image\x22\x20style=\x22background-image:\x20url(\x27', 'iJuIL', 'YGuwG', 'account-details-modal', 'length', 'qpYrT', 'message', 'none', 'IbMKC', 'JZhZR', 'vKnlp', 'signInWithEmailAndPassword', 'GiByt', 'KEjqL', 'price', 'aXaJg', 'UndHD', 'dxGCt', 'ZtdZt', 'Lfsqm', 'mobile-menu-btn', 'nav-links', 'status', 'signOut', 'GCaoH', 'split', 'NNMPK', 'sellerEmail', 'XlRsv', 'account-status', 'PznTq', 'SUDRs', 'MBpzi', 'elBBb', 'trydg', 'kmoGy', 'pixel-clash-arena', 'preview-screenshots', 'fDeDP', 'AEAuo', 'PmRbk', 'games-grid', '#FFFFFF', 'where', 'de4mxx3at', 'wJWjF', 'Qpjxs', 'Error\x20loading\x20user\x20games:', 'sellerId', 'close-screenshots', 'mvQaU', 'UhKOe', 'screenshots-urls', 'qYyQh', 'LRacR', '\x22\x20alt=\x22Game\x20Screenshot\x22>', '10886XOsLVN', '30OaNtiG', 'Failed\x20to\x20delete\x20account.\x20Please\x20try\x20again.', 'account-details-status', 'tVVzS', 'active', '\x20EGP', 'camera', 'CdPut', 'createElement', 'Free\x20Fire', 'local', 'yUSKc', 'KimNO', '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p\x20class=\x22game-price\x22>', 'sqVKY', 'file-upload-preview-item', 'xtdEn', '_blank', 'tdQTt', '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', 'Error\x20deleting\x20account:', 'stopPropagation', 'RfLuk', 'QrDQT', 'login-form', 'email', 'lNEmW', 'XrwMB', 'qCBTJ', 'OuYbe', 'game-card', '#1E1E1E', '.game-screenshots', 'HwdUG', 'zsTmq', '\x20EGP</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', '\x27)\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20', 'bloodstrike-grid', '\x20|\x20', 'ITiGU', 'zoxWL', 'xCKqd', 'UfozJ', 'FVCYQ']; _0x7601 = function () { return _0x4f6bb4; }; return _0x7601(); } async function loadGameListings() { const _0x4acec4 = _0x53e529, _0x353a7a = { 'GTICH': function (_0x468913, _0x148b22) { return _0x468913 === _0x148b22; }, 'VGbAM': _0x4acec4(0x12a), 'sqFAF': function (_0x32fb54, _0x24c608) { return _0x32fb54 === _0x24c608; }, 'tcznk': _0x4acec4(0xc9), 'Mgqvw': _0x4acec4(0x1e3), 'btjvv': 'yBiNC', 'PGBTt': function (_0x124482, _0x5cf1c9, _0x33dffc) { return _0x124482(_0x5cf1c9, _0x33dffc); }, 'BXkLW': _0x4acec4(0x1cd) }; try { const _0x3bdd9f = await loadGamesFromFirestore(); gamesGrid[_0x4acec4(0xba)] = '', _0x3bdd9f['forEach'](_0x2af350 => { const _0x498722 = _0x4acec4; _0x353a7a['sqFAF'](_0x2af350[_0x498722(0x103)], _0x353a7a[_0x498722(0x2d5)]) && (_0x353a7a[_0x498722(0x1bb)](_0x353a7a[_0x498722(0x1cc)], _0x353a7a['btjvv']) ? _0x353a7a[_0x498722(0x16f)](_0x4f6b5a['id'], _0x52481d) ? _0x54d91e[_0x498722(0x2d8)][_0x498722(0xce)](_0x353a7a['VGbAM']) : _0x25335d[_0x498722(0x2d8)][_0x498722(0x1b6)](_0x353a7a[_0x498722(0x2c9)]) : _0x353a7a[_0x498722(0x1fc)](addGameCard, _0x2af350, gamesGrid)); }); } catch (_0x2cbb5d) { console[_0x4acec4(0x1f2)](_0x353a7a[_0x4acec4(0x2b0)], _0x2cbb5d); } } async function loadFreeFireGames() { const _0x52188b = _0x53e529, _0x4562b2 = { 'euiYZ': function (_0x4b4171, _0x5e660b) { return _0x4b4171 === _0x5e660b; }, 'YFzsG': function (_0x49f3f8, _0x248235, _0x45cfbc) { return _0x49f3f8(_0x248235, _0x45cfbc); }, 'CNUgk': _0x52188b(0x12a), 'KsMqB': function (_0x2027a4, _0x12ae9f) { return _0x2027a4 === _0x12ae9f; }, 'aacWQ': 'completed', 'MPPpt': _0x52188b(0x12f), 'YuAZr': function (_0x1298ad, _0x41a8c9) { return _0x1298ad !== _0x41a8c9; }, 'jGmGW': 'NbGeP', 'nnCEQ': _0x52188b(0x222), 'bRlon': _0x52188b(0x280) }; try { const _0x570d03 = await loadGamesByGameType(_0x4562b2[_0x52188b(0x245)]); freefireGrid[_0x52188b(0xba)] = '', _0x570d03[_0x52188b(0x191)](_0x3a8a26 => { const _0x8dfb30 = _0x52188b; _0x4562b2[_0x8dfb30(0x28e)](_0x3a8a26[_0x8dfb30(0x103)], _0x8dfb30(0xc9)) && _0x4562b2[_0x8dfb30(0x19e)](addGameCard, _0x3a8a26, freefireGrid); }); } catch (_0xeadaea) { _0x4562b2[_0x52188b(0xaf)](_0x4562b2[_0x52188b(0xb8)], _0x4562b2[_0x52188b(0xb7)]) ? console['error'](_0x4562b2['bRlon'], _0xeadaea) : (_0x4562b2[_0x52188b(0x28e)](_0x44e9c3[_0x52188b(0x2e0)]['step'], _0x28af23[_0x52188b(0x2e0)]['section']) && _0x2c6af3[_0x52188b(0x2d8)]['remove'](_0x4562b2['CNUgk']), _0x4562b2[_0x52188b(0x1f9)](_0x186272[_0x52188b(0x2e0)][_0x52188b(0x2c4)], _0x5bbd82) && (_0x10b160[_0x52188b(0x2d8)][_0x52188b(0xce)](_0x4562b2[_0x52188b(0x1e5)]), _0x3465dc[_0x52188b(0x2d8)][_0x52188b(0x1b6)](_0x4562b2[_0x52188b(0x2db)]))); } } async function loadPUBGGames() { const _0x132375 = _0x53e529, _0x5197db = { 'JkdIR': function (_0x445c78, _0x45e330) { return _0x445c78 === _0x45e330; }, 'zsTmq': _0x132375(0xc9), 'xkbYk': function (_0x5744dd, _0x5b4f77, _0xe2f32) { return _0x5744dd(_0x5b4f77, _0xe2f32); }, 'VDrUt': _0x132375(0x9f), 'hzhoF': 'pascI', 'pdEho': function (_0x3ad4a4, _0x323361) { return _0x3ad4a4(_0x323361); }, 'rQKuo': _0x132375(0x244) }; try { if (_0x5197db[_0x132375(0xe7)] !== _0x5197db[_0x132375(0x96)]) { const _0x1db170 = await _0x5197db[_0x132375(0x94)](loadGamesByGameType, _0x5197db[_0x132375(0xc7)]); pubgGrid[_0x132375(0xba)] = '', _0x1db170[_0x132375(0x191)](_0x147984 => { const _0x53ea41 = _0x132375; _0x5197db[_0x53ea41(0x1d1)](_0x147984[_0x53ea41(0x103)], _0x5197db[_0x53ea41(0x148)]) && _0x5197db[_0x53ea41(0x8a)](addGameCard, _0x147984, pubgGrid); }); } else _0x2571a4[_0x132375(0x13b)](), _0x31f80c[_0x132375(0x164)](_0x556611, 0x1), _0x148d47[_0x132375(0x1a0)] = _0x489271[_0x132375(0x215)](_0x320246), _0x35dae0(_0x2a9df3); } catch (_0x42ba22) { console[_0x132375(0x1f2)]('Error\x20loading\x20PUBG\x20games:', _0x42ba22); } } async function loadBloodStrikeGames() { const _0xc40ad7 = _0x53e529, _0x5e1a59 = { 'VUmgx': function (_0x51854e, _0x49bc34) { return _0x51854e === _0x49bc34; }, 'HVksL': _0xc40ad7(0xc9), 'SLvkU': function (_0x4a4bc4, _0x562333, _0xfdb398) { return _0x4a4bc4(_0x562333, _0xfdb398); }, 'wJWjF': 'uaPDz', 'TqmGu': function (_0x12fa00, _0xd476d6) { return _0x12fa00(_0xd476d6); }, 'GCaoH': 'Blood\x20Strike', 'lNQEQ': _0xc40ad7(0x259) }; try { if (_0x5e1a59[_0xc40ad7(0x168)](_0xc40ad7(0x2af), _0x5e1a59[_0xc40ad7(0x11a)])) { const _0x383899 = await _0x5e1a59['TqmGu'](loadGamesByGameType, _0x5e1a59[_0xc40ad7(0x105)]); bloodstrikeGrid[_0xc40ad7(0xba)] = '', _0x383899[_0xc40ad7(0x191)](_0x5762e2 => { const _0x50ee26 = _0xc40ad7; _0x5e1a59[_0x50ee26(0x168)](_0x5762e2[_0x50ee26(0x103)], _0x5e1a59[_0x50ee26(0x23f)]) && _0x5e1a59[_0x50ee26(0x296)](addGameCard, _0x5762e2, bloodstrikeGrid); }); } else _0x33ad1c['error'](_0xc40ad7(0x13a), _0x21d7fb), _0x44cc54(_0xc40ad7(0x127)); } catch (_0x2a4815) { console[_0xc40ad7(0x1f2)](_0x5e1a59[_0xc40ad7(0x203)], _0x2a4815); } } async function loadPESGames() { const _0x42bea0 = _0x53e529, _0x5f1006 = { 'trydg': function (_0x12ccf0, _0x5326de) { return _0x12ccf0(_0x5326de); }, 'lKAhH': 'Please\x20upload\x20at\x20least\x202\x20screenshots', 'PEcnN': _0x42bea0(0x25a), 'wEeMZ': function (_0x402557, _0xd8bb1c) { return _0x402557 === _0xd8bb1c; }, 'rSdCM': 'Available', 'IUsyQ': function (_0x20ba30, _0x239b9e, _0x4bcf24) { return _0x20ba30(_0x239b9e, _0x4bcf24); }, 'PMOEP': function (_0x5dc86b, _0x513735) { return _0x5dc86b(_0x513735); }, 'tYqYV': _0x42bea0(0x20e), 'GisdI': function (_0x2c5b31, _0x83a7b3) { return _0x2c5b31 === _0x83a7b3; }, 'xyUHH': 'BCqFF', 'cVoLl': _0x42bea0(0x281) }; try { const _0x22269c = await _0x5f1006[_0x42bea0(0x2d2)](loadGamesByGameType, _0x5f1006[_0x42bea0(0x171)]); pesGrid[_0x42bea0(0xba)] = '', _0x22269c[_0x42bea0(0x191)](_0x17d0cc => { const _0x4d8068 = _0x42bea0, _0x352a91 = { 'jtwfV': function (_0x315579, _0x472e0d) { const _0x5fb10e = _0x3bb7; return _0x5f1006[_0x5fb10e(0x10f)](_0x315579, _0x472e0d); }, 'SAHvE': _0x5f1006['lKAhH'] }; if (_0x5f1006['PEcnN'] === _0x4d8068(0x25a)) _0x5f1006[_0x4d8068(0x1c1)](_0x17d0cc['status'], _0x5f1006[_0x4d8068(0x92)]) && _0x5f1006['IUsyQ'](addGameCard, _0x17d0cc, pesGrid); else return _0x352a91[_0x4d8068(0x207)](_0x55922a, _0x352a91[_0x4d8068(0x228)]), ![]; }); } catch (_0x1cea98) { if (_0x5f1006[_0x42bea0(0x1e0)](_0x5f1006[_0x42bea0(0xad)], _0x5f1006[_0x42bea0(0xad)])) console[_0x42bea0(0x1f2)](_0x5f1006[_0x42bea0(0x2ec)], _0x1cea98); else { const _0x2362e3 = _0x1994fc[_0x42bea0(0x12e)]('li'); _0x2362e3[_0x42bea0(0x1ea)] = _0x4cb7ee, _0x5c8b8c['appendChild'](_0x2362e3); } } } async function loadMyAccounts() { const _0xfe9012 = _0x53e529, _0x3c4eaf = { 'uOnAu': function (_0x3ac8ff, _0x64f945) { return _0x3ac8ff === _0x64f945; }, 'cEQyc': _0xfe9012(0xc9), 'jnpdb': function (_0x11dc8d, _0x3e4c89, _0x17d120) { return _0x11dc8d(_0x3e4c89, _0x17d120); }, 'PqoiP': _0xfe9012(0xde), 'pkmwP': function (_0x27dcab, _0x527c6a) { return _0x27dcab(_0x527c6a); }, 'wpSxM': _0xfe9012(0x1d5) }; try { if (!currentUser) return; const _0x23f927 = await loadUserGames(currentUser[_0xfe9012(0x161)]); myAccountsGrid[_0xfe9012(0xba)] = '', _0x23f927['forEach'](_0x44fd7d => { const _0xc72e1a = _0xfe9012; _0x3c4eaf[_0xc72e1a(0x1bf)](_0xc72e1a(0xde), _0x3c4eaf['PqoiP']) ? _0x3c4eaf[_0xc72e1a(0x9d)](addMyAccountCard, _0x44fd7d) : _0x3c4eaf[_0xc72e1a(0x1bf)](_0x13178a[_0xc72e1a(0x103)], _0x3c4eaf['cEQyc']) && _0x3c4eaf[_0xc72e1a(0xb6)](_0x1997b0, _0x2aee18, _0x58de7c); }); } catch (_0x447028) { console[_0xfe9012(0x1f2)](_0x3c4eaf[_0xfe9012(0x2eb)], _0x447028); } } function addGameCard(_0x200f43, _0x4efe98) { const _0x403b6b = _0x53e529, _0x20201f = { 'OIDnO': function (_0x453e11, _0x48d99b) { return _0x453e11(_0x48d99b); }, 'QeemB': _0x403b6b(0x22c), 'JZhZR': _0x403b6b(0x144), 'SSphQ': 'click' }, _0x1fd438 = document[_0x403b6b(0x12e)](_0x20201f[_0x403b6b(0x167)]); _0x1fd438[_0x403b6b(0x230)] = _0x20201f[_0x403b6b(0xf6)], _0x1fd438[_0x403b6b(0xba)] = '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22game-image\x22\x20style=\x22background-image:\x20url(\x27' + _0x200f43[_0x403b6b(0x272)] + _0x403b6b(0xd4) + _0x200f43[_0x403b6b(0x108)]['split']('@')[0x0] + '\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20' + (_0x200f43[_0x403b6b(0x28c)] && _0x200f43[_0x403b6b(0x28c)][_0x403b6b(0xf1)] > 0x0 ? '<div\x20class=\x22game-screenshots\x22\x20data-id=\x22' + _0x200f43['id'] + _0x403b6b(0x186) + _0x200f43[_0x403b6b(0x28c)]['length'] + _0x403b6b(0x1a9) : '') + _0x403b6b(0x1a4) + _0x200f43['title'] + _0x403b6b(0x2ae) + _0x200f43['game'] + _0x403b6b(0x14c) + _0x200f43[_0x403b6b(0x231)] + _0x403b6b(0x193) + (_0x200f43['level'] ? '<p\x20class=\x22game-platform\x22>' + _0x200f43['level'] + _0x403b6b(0x27c) : '') + _0x403b6b(0x133) + _0x200f43[_0x403b6b(0xfb)] + _0x403b6b(0x149), _0x4efe98[_0x403b6b(0x159)](_0x1fd438), _0x1fd438['addEventListener'](_0x20201f[_0x403b6b(0x25b)], () => { _0x20201f['OIDnO'](openAccountDetailsModal, _0x200f43); }); const _0x4b0b48 = _0x1fd438[_0x403b6b(0x1c8)](_0x403b6b(0x146)); _0x4b0b48 && _0x4b0b48[_0x403b6b(0x2d9)](_0x20201f[_0x403b6b(0x25b)], _0x19866f => { _0x19866f['stopPropagation'](), _0x20201f['OIDnO'](openScreenshotsModal, _0x200f43); }); } function addMyAccountCard(_0x5a98c6) { const _0x63036c = _0x53e529, _0x3fc63b = { 'DBXQG': function (_0x539bbf, _0xcca3c9) { return _0x539bbf(_0xcca3c9); }, 'LePGQ': _0x63036c(0x1eb), 'bfbqE': function (_0x30b143, _0x51063b) { return _0x30b143(_0x51063b); }, 'YPbOt': function (_0x4fa50c, _0xa2c1ff) { return _0x4fa50c === _0xa2c1ff; }, 'YGuwG': _0x63036c(0x1a8), 'ZFbyn': function (_0x360f9b, _0xa042d4) { return _0x360f9b === _0xa042d4; }, 'SXUGs': 'pRRqY', 'ZtdZt': _0x63036c(0x23e), 'OuYbe': _0x63036c(0x22c), 'qpYrT': 'game-card', 'GiByt': _0x63036c(0x2c5), 'qCBTJ': _0x63036c(0x195), 'tBTnz': _0x63036c(0x146) }, _0x58678b = document[_0x63036c(0x12e)](_0x3fc63b[_0x63036c(0x143)]); _0x58678b['className'] = _0x3fc63b[_0x63036c(0xf2)], _0x58678b[_0x63036c(0xba)] = _0x63036c(0xed) + _0x5a98c6[_0x63036c(0x272)] + _0x63036c(0x14a) + (_0x5a98c6[_0x63036c(0x28c)] && _0x5a98c6[_0x63036c(0x28c)][_0x63036c(0xf1)] > 0x0 ? '<div\x20class=\x22game-screenshots\x22\x20data-id=\x22' + _0x5a98c6['id'] + _0x63036c(0x186) + _0x5a98c6[_0x63036c(0x28c)][_0x63036c(0xf1)] + _0x63036c(0x1a9) : '') + _0x63036c(0x1a4) + _0x5a98c6['title'] + _0x63036c(0x2ae) + _0x5a98c6[_0x63036c(0x1ce)] + _0x63036c(0x14c) + _0x5a98c6['platform'] + _0x63036c(0x193) + (_0x5a98c6[_0x63036c(0x1c2)] ? _0x63036c(0x1ae) + _0x5a98c6[_0x63036c(0x1c2)] + _0x63036c(0x27c) : '') + _0x63036c(0x133) + _0x5a98c6['price'] + _0x63036c(0x2bd) + _0x5a98c6[_0x63036c(0x103)] + _0x63036c(0x1ef) + _0x5a98c6['id'] + _0x63036c(0xd5), myAccountsGrid[_0x63036c(0x159)](_0x58678b), _0x58678b[_0x63036c(0x1c8)](_0x3fc63b[_0x63036c(0xf9)])['addEventListener'](_0x3fc63b['qCBTJ'], _0x97e7d7 => { const _0x5440ed = _0x63036c; _0x97e7d7[_0x5440ed(0x13b)](), _0x3fc63b[_0x5440ed(0x1d9)](confirm, _0x3fc63b[_0x5440ed(0x2ca)]) && _0x3fc63b[_0x5440ed(0x2c2)](deleteAccount, _0x5a98c6['id']); }), _0x58678b[_0x63036c(0x2d9)](_0x3fc63b[_0x63036c(0x142)], () => { const _0x113bd6 = _0x63036c; _0x3fc63b[_0x113bd6(0x223)](_0x3fc63b[_0x113bd6(0xef)], _0x113bd6(0x8f)) ? _0x49d672() : openAccountDetailsModal(_0x5a98c6); }); const _0x243eff = _0x58678b[_0x63036c(0x1c8)](_0x3fc63b[_0x63036c(0x270)]); _0x243eff && _0x243eff[_0x63036c(0x2d9)](_0x3fc63b[_0x63036c(0x142)], _0x4101dd => { const _0x363231 = _0x63036c; if (_0x3fc63b[_0x363231(0x99)](_0x3fc63b[_0x363231(0x237)], _0x3fc63b[_0x363231(0xff)])) { const _0x53a2b6 = { 'IbMKC': function (_0x3fc655, _0x25b4fe) { const _0xa65dbd = _0x363231; return _0x3fc63b[_0xa65dbd(0x1d9)](_0x3fc655, _0x25b4fe); }, 'GsuHW': function (_0x42ad52) { return _0x42ad52(); } }; _0x29252c[_0x363231(0x285)](_0x29362f => { const _0x209ce2 = _0x363231; _0x29362f ? (_0x208c38 = _0x29362f, _0x53a2b6[_0x209ce2(0xf5)](_0x5a0aee, _0x29362f), _0x53a2b6[_0x209ce2(0xb1)](_0x508af7)) : (_0x4a6956 = null, _0x53a2b6[_0x209ce2(0xb1)](_0x1534e7)); }); } else _0x4101dd[_0x363231(0x13b)](), openScreenshotsModal(_0x5a98c6); }); } function handleSellButtonClick() { const _0x3fee8e = _0x53e529, _0x1c6799 = { 'OqBcb': function (_0xf237a9) { return _0xf237a9(); } }; !currentUser ? _0x1c6799[_0x3fee8e(0x2a0)](openLoginModal) : _0x1c6799[_0x3fee8e(0x2a0)](showSellAccount); } function handleLogin(_0x53db5d) { const _0x299861 = _0x53e529, _0x223376 = { 'YtdKn': function (_0xba1663, _0xe82950) { return _0xba1663 !== _0xe82950; }, 'eWPAP': _0x299861(0x140), 'PDGQf': 'kUael', 'emXTU': function (_0xe9e957) { return _0xe9e957(); }, 'jlVSt': function (_0x27c62f, _0x45b0de) { return _0x27c62f(_0x45b0de); }, 'QKvLP': _0x299861(0x214), 'PcraT': function (_0x5cfc7e, _0x1e0624) { return _0x5cfc7e === _0x1e0624; }, 'EDuHE': _0x299861(0x134), 'xCKqd': _0x299861(0x249), 'NTjAj': function (_0x2b415a, _0x477d42) { return _0x2b415a(_0x477d42); }, 'AhlfX': _0x299861(0x1e4), 'Lfsqm': _0x299861(0x19c) }; _0x53db5d['preventDefault'](); const _0x133a35 = document[_0x299861(0x26f)](_0x223376[_0x299861(0x17b)])[_0x299861(0x1a0)], _0x25b917 = document[_0x299861(0x26f)](_0x223376[_0x299861(0x100)])[_0x299861(0x1a0)]; auth[_0x299861(0xf8)](_0x133a35, _0x25b917)['then'](_0x1cc910 => { const _0x484c70 = _0x299861; _0x223376['YtdKn'](_0x223376[_0x484c70(0x17d)], _0x223376[_0x484c70(0x2e4)]) ? (_0x223376[_0x484c70(0x262)](closeLoginModal), updateUIForLoggedInUser(_0x1cc910[_0x484c70(0xeb)])) : (_0x34aff0[_0x484c70(0x13b)](), _0x47f158 = '', _0x59b111[_0x484c70(0x1a0)] = '', _0x517284[_0x484c70(0xba)] = ''); })['catch'](_0x194076 => { const _0x1e9b4c = _0x299861; if (_0x223376[_0x1e9b4c(0x240)](_0x223376[_0x1e9b4c(0x1e2)], _0x223376[_0x1e9b4c(0x14f)])) return _0x223376['jlVSt'](_0x12b535, _0x223376[_0x1e9b4c(0x169)]), ![]; else _0x223376['NTjAj'](alert, _0x194076[_0x1e9b4c(0xf3)]); }); } function handleLogout() { const _0x4e5426 = _0x53e529, _0x1f74bf = { 'RPwDA': function (_0x32d4ed) { return _0x32d4ed(); } }; auth[_0x4e5426(0x104)]()[_0x4e5426(0x233)](() => { const _0x3a61b2 = _0x4e5426; _0x1f74bf[_0x3a61b2(0x198)](updateUIForLoggedOutUser); }); } function openWhatsApp() { const _0x4b314a = _0x53e529, _0x5292dc = { 'iJuIL': 'Hi,\x20I\x27d\x20like\x20to\x20create\x20an\x20account\x20for\x20GameAccountsHub.\x20My\x20email\x20is:\x20', 'IKKVt': _0x4b314a(0x137) }, _0x3114d3 = encodeURIComponent(_0x5292dc[_0x4b314a(0xee)]); window['open'](_0x4b314a(0x196) + _0x3114d3, _0x5292dc[_0x4b314a(0x2bc)]); } async function deleteAccount(_0x213d1b) { const _0x580a16 = _0x53e529, _0x582224 = { 'AJXmF': function (_0x26e2b2, _0x5c45f2) { return _0x26e2b2(_0x5c45f2); }, 'QiACo': function (_0x197cd1) { return _0x197cd1(); }, 'YdLeE': function (_0x54aaf9) { return _0x54aaf9(); }, 'goqTp': _0x580a16(0x127) }; try { await _0x582224[_0x580a16(0x8d)](deleteGameFromFirestore, _0x213d1b), await _0x582224[_0x580a16(0x1bd)](loadMyAccounts), await _0x582224[_0x580a16(0x29e)](loadGameListings); } catch (_0x2c1251) { console[_0x580a16(0x1f2)]('Error\x20deleting\x20account:', _0x2c1251), _0x582224[_0x580a16(0x8d)](alert, _0x582224[_0x580a16(0x177)]); } } function resetSellForm() { const _0x28144e = _0x53e529, _0x30a838 = { 'PoOTl': _0x28144e(0x12a), 'dxGCt': function (_0x18895a, _0x4ec9d3) { return _0x18895a === _0x4ec9d3; } }; sellAccountForm[_0x28144e(0xcd)](), coverPreview[_0x28144e(0xba)] = '', screenshotsPreview['innerHTML'] = '', previewCover[_0x28144e(0xc2)][_0x28144e(0x22a)] = '', previewScreenshots[_0x28144e(0xba)] = '', coverImageUrl = '', screenshotsUrls = [], coverImageUrlInput[_0x28144e(0x1a0)] = '', screenshotsUrlsInput[_0x28144e(0x1a0)] = '', steps[_0x28144e(0x191)](_0x5468a7 => { const _0x3c8e02 = _0x28144e; _0x5468a7[_0x3c8e02(0x2d8)][_0x3c8e02(0x1b6)](_0x30a838[_0x3c8e02(0x1fb)], _0x3c8e02(0x1d8)), _0x5468a7[_0x3c8e02(0x2e0)]['step'] === '1' && _0x5468a7[_0x3c8e02(0x2d8)][_0x3c8e02(0xce)](_0x30a838[_0x3c8e02(0x1fb)]); }), formSections['forEach'](_0x460ddb => { const _0x2a7361 = _0x28144e; _0x460ddb[_0x2a7361(0x2d8)][_0x2a7361(0x1b6)](_0x2a7361(0x12a)), _0x30a838[_0x2a7361(0xfe)](_0x460ddb[_0x2a7361(0x2e0)][_0x2a7361(0x2e7)], '1') && _0x460ddb[_0x2a7361(0x2d8)][_0x2a7361(0xce)](_0x30a838[_0x2a7361(0x1fb)]); }); } async function handleNextButton(_0x429457) { const _0x59287e = _0x53e529, _0x39e6e0 = { 'YdMRY': _0x59287e(0x12a), 'cTLUU': function (_0x5607bd) { return _0x5607bd(); }, 'TcEna': _0x59287e(0xda), 'NEGCd': function (_0x3795c3, _0x13c032) { return _0x3795c3 === _0x13c032; }, 'cQCbz': function (_0x571c89, _0x112c8c) { return _0x571c89 === _0x112c8c; }, 'bvLkd': function (_0xe6df88, _0x55d96f) { return _0xe6df88 !== _0x55d96f; }, 'mmmUi': _0x59287e(0x246), 'jGtDo': _0x59287e(0x189), 'xWDXF': function (_0x306cd0, _0x5a174d) { return _0x306cd0(_0x5a174d); }, 'Xbuyg': 'Price\x20must\x20be\x20greater\x20than\x200', 'uEcZx': _0x59287e(0x1b4), 'RdYBM': _0x59287e(0x1da), 'bxCji': _0x59287e(0x1c7), 'tFQsa': function (_0x480081, _0x493a14) { return _0x480081(_0x493a14); }, 'zoxWL': function (_0xa7f696, _0x7e67eb) { return _0xa7f696 === _0x7e67eb; }, 'BSYcK': _0x59287e(0x89), 'UfozJ': 'zQBQc', 'Hbler': 'nFswQ' }; _0x429457[_0x59287e(0x175)](); const _0x4dedd2 = document[_0x59287e(0x1c8)](_0x39e6e0['RdYBM']), _0x50807c = this[_0x59287e(0x1e6)](_0x39e6e0[_0x59287e(0x26b)]), _0x33217c = document['querySelector'](_0x59287e(0xac) + _0x50807c + '\x22]'); if (await _0x39e6e0[_0x59287e(0x24b)](validateSection, _0x4dedd2[_0x59287e(0x2e0)][_0x59287e(0x2e7)])) { if (_0x39e6e0[_0x59287e(0x14e)](_0x39e6e0[_0x59287e(0xc5)], _0x39e6e0[_0x59287e(0xc5)])) { steps[_0x59287e(0x191)](_0x388db1 => { const _0xcc4184 = _0x59287e; if (_0x39e6e0[_0xcc4184(0x253)] !== _0x39e6e0[_0xcc4184(0x253)]) { if (_0xa13e41) { const _0x1c91b6 = _0x2d4382['createElement']('li'); _0x1c91b6['textContent'] = _0x3eab89, _0x2989a9[_0xcc4184(0x159)](_0x1c91b6); } } else _0x39e6e0[_0xcc4184(0x299)](_0x388db1[_0xcc4184(0x2e0)][_0xcc4184(0x2c4)], _0x4dedd2[_0xcc4184(0x2e0)][_0xcc4184(0x2e7)]) && (_0x39e6e0['cQCbz'](_0xcc4184(0x20b), _0xcc4184(0x20b)) ? (_0x388db1[_0xcc4184(0x2d8)][_0xcc4184(0x1b6)](_0x39e6e0[_0xcc4184(0x220)]), _0x388db1[_0xcc4184(0x2d8)][_0xcc4184(0xce)](_0xcc4184(0x1d8))) : _0x5734ba[_0xcc4184(0x2d8)][_0xcc4184(0x1b6)](_0x39e6e0[_0xcc4184(0x220)])), _0x388db1[_0xcc4184(0x2e0)][_0xcc4184(0x2c4)] === _0x50807c && (_0x39e6e0[_0xcc4184(0x16e)](_0x39e6e0[_0xcc4184(0x26e)], _0x39e6e0[_0xcc4184(0xae)]) ? _0x388db1['classList'][_0xcc4184(0xce)](_0xcc4184(0x12a)) : _0x39e6e0['cTLUU'](_0x29d426)); }), _0x4dedd2[_0x59287e(0x2d8)][_0x59287e(0x1b6)]('active'), _0x33217c[_0x59287e(0x2d8)]['add'](_0x39e6e0['YdMRY']); if (_0x50807c === '3') { if (_0x39e6e0[_0x59287e(0x16e)](_0x39e6e0[_0x59287e(0x150)], _0x39e6e0['Hbler'])) updatePreview(); else return _0x39e6e0[_0x59287e(0xa9)](_0x362b70, _0x39e6e0[_0x59287e(0x210)]), ![]; } } else _0x3c82fc['style'][_0x59287e(0xd6)] = _0x39e6e0[_0x59287e(0x2cd)]; } } function handlePrevButton(_0x31fcdb) { const _0x2366e3 = _0x53e529, _0x5126e2 = { 'CsmFr': function (_0x830e93, _0xb610e4) { return _0x830e93(_0xb610e4); }, 'osoEY': _0x2366e3(0x195), 'JWUzh': function (_0x6a6f86, _0x1e1ce9) { return _0x6a6f86 === _0x1e1ce9; }, 'SXYbj': _0x2366e3(0x19f), 'jrtvZ': _0x2366e3(0x12a), 'CotuG': 'completed', 'YXbIh': _0x2366e3(0x1da), 'XrwMB': 'data-prev' }; _0x31fcdb['preventDefault'](); const _0x5f28d2 = document[_0x2366e3(0x1c8)](_0x5126e2[_0x2366e3(0x269)]), _0x2e1568 = this[_0x2366e3(0x1e6)](_0x5126e2[_0x2366e3(0x141)]), _0x144914 = document[_0x2366e3(0x1c8)](_0x2366e3(0xac) + _0x2e1568 + '\x22]'); steps[_0x2366e3(0x191)](_0x3da3f8 => { const _0xe9bb16 = _0x2366e3; if (_0x5126e2[_0xe9bb16(0x154)](_0x3da3f8[_0xe9bb16(0x2e0)][_0xe9bb16(0x2c4)], _0x5f28d2[_0xe9bb16(0x2e0)][_0xe9bb16(0x2e7)])) { if (_0x5126e2[_0xe9bb16(0x2c1)] === _0x5126e2[_0xe9bb16(0x2c1)]) _0x3da3f8[_0xe9bb16(0x2d8)][_0xe9bb16(0x1b6)](_0x5126e2[_0xe9bb16(0x1c5)]); else { const _0x1bfa22 = { 'lOMyC': function (_0x1604a0, _0x130253) { const _0x288f7d = _0xe9bb16; return _0x5126e2[_0x288f7d(0x15f)](_0x1604a0, _0x130253); } }; _0xbbf1a0[_0xe9bb16(0x2d9)](_0x5126e2['osoEY'], _0x369241 => { const _0x407cc8 = _0xe9bb16; _0x369241[_0x407cc8(0x13b)](), _0x1bfa22[_0x407cc8(0x23c)](_0xaa21c2, _0x493f68); }); } } _0x5126e2[_0xe9bb16(0x154)](_0x3da3f8[_0xe9bb16(0x2e0)][_0xe9bb16(0x2c4)], _0x2e1568) && (_0x3da3f8[_0xe9bb16(0x2d8)]['add'](_0x5126e2[_0xe9bb16(0x1c5)]), _0x3da3f8['classList'][_0xe9bb16(0x1b6)](_0x5126e2['CotuG'])); }), _0x5f28d2['classList'][_0x2366e3(0x1b6)](_0x5126e2[_0x2366e3(0x1c5)]), _0x144914[_0x2366e3(0x2d8)][_0x2366e3(0xce)](_0x5126e2[_0x2366e3(0x1c5)]); } async function validateSection(_0x417bca) { const _0x243f70 = _0x53e529, _0x246e05 = { 'VLxFJ': _0x243f70(0xf4), 'MEHod': function (_0x1a3b56) { return _0x1a3b56(); }, 'vgVRp': function (_0x21ea5d, _0xaeaeb4) { return _0x21ea5d === _0xaeaeb4; }, 'bFyDr': function (_0x56cf47, _0x295a31) { return _0x56cf47 === _0x295a31; }, 'MMcod': _0x243f70(0x1aa), 'CFtFt': 'account-title', 'BBRtN': function (_0x14c43d, _0x1be363) { return _0x14c43d(_0x1be363); }, 'VwKtF': function (_0xbbcfb8, _0x14324c) { return _0xbbcfb8(_0x14324c); }, 'PmRbk': _0x243f70(0x214), 'jkohr': 'Title', 'gFLqp': 'account-game', 'ykcGa': _0x243f70(0x27d), 'TCPxU': 'account-platform', 'vXEDj': _0x243f70(0x19d), 'elBBb': _0x243f70(0xd0), 'ntAaw': 'account-status', 'eXmGm': 'account-description', 'afqxT': 'uFvoo', 'RfLuk': _0x243f70(0x1f8), 'AKhCv': _0x243f70(0x2e6), 'yApkG': 'Please\x20enter\x20a\x20valid\x20price', 'EMNnO': _0x243f70(0x8c), 'tdQTt': function (_0x5384d7, _0x447e3f) { return _0x5384d7(_0x447e3f); }, 'fTipU': _0x243f70(0x211), 'UDPJz': function (_0x139e04, _0x35f58c) { return _0x139e04 < _0x35f58c; }, 'DfDOY': _0x243f70(0x27e), 'zPjfy': 'Please\x20upload\x20at\x20least\x202\x20screenshots' }; if (_0x246e05[_0x243f70(0x1bc)](_0x417bca, '1')) { if (_0x246e05[_0x243f70(0x19a)](_0x246e05[_0x243f70(0x235)], _0x243f70(0x1aa))) { const _0x316de0 = document[_0x243f70(0x26f)](_0x246e05['CFtFt'])['value'][_0x243f70(0x21d)](); if (_0x316de0) { const _0x4387b8 = await _0x246e05[_0x243f70(0x25c)](isTitleUnique, _0x316de0); if (!_0x4387b8) return _0x246e05[_0x243f70(0x8b)](alert, _0x246e05[_0x243f70(0x115)]), ![]; } const _0x1e2a82 = [{ 'id': 'account-title', 'name': _0x246e05[_0x243f70(0x1a3)] }, { 'id': _0x246e05[_0x243f70(0x224)], 'name': _0x246e05[_0x243f70(0x2ee)] }, { 'id': _0x246e05[_0x243f70(0x21a)], 'name': _0x246e05[_0x243f70(0x1c9)] }, { 'id': _0x243f70(0x200), 'name': _0x246e05[_0x243f70(0x10e)] }, { 'id': _0x246e05['ntAaw'], 'name': _0x243f70(0x178) }, { 'id': _0x246e05[_0x243f70(0xe4)], 'name': _0x243f70(0x260) }]; for (const _0x53143e of _0x1e2a82) { if (_0x246e05[_0x243f70(0x15c)] !== _0x246e05[_0x243f70(0x13c)]) { const _0x3d0b7a = document[_0x243f70(0x26f)](_0x53143e['id'])[_0x243f70(0x1a0)][_0x243f70(0x21d)](); if (!_0x3d0b7a) return _0x246e05[_0x243f70(0x8b)](alert, _0x243f70(0x2b3) + _0x53143e[_0x243f70(0xe5)] + _0x243f70(0xd1)), document[_0x243f70(0x26f)](_0x53143e['id'])[_0x243f70(0x23a)](), ![]; } else { const _0x465dd6 = _0x2c446e['getElementById'](_0x4d0ffd['id'])[_0x243f70(0x1a0)][_0x243f70(0x21d)](); if (!_0x465dd6) return _0x457c5c('Please\x20fill\x20in\x20the\x20' + _0x8563b3[_0x243f70(0xe5)] + _0x243f70(0xd1)), _0x54bea6['getElementById'](_0x4056af['id'])[_0x243f70(0x23a)](), ![]; } } const _0x5d6f26 = parseInt(document[_0x243f70(0x26f)]('account-price')[_0x243f70(0x1a0)]); if (isNaN(_0x5d6f26)) { if (_0x246e05[_0x243f70(0x1bc)](_0x246e05['AKhCv'], _0x246e05[_0x243f70(0x206)])) return _0x246e05['VwKtF'](alert, _0x246e05[_0x243f70(0x1d2)]), ![]; else _0x6f10f0[_0x243f70(0xc2)][_0x243f70(0xd6)] = _0x246e05[_0x243f70(0x9c)], _0x3a2f41 = null; } if (_0x5d6f26 <= 0x0) return _0x246e05[_0x243f70(0x8b)](alert, _0x246e05[_0x243f70(0x2cf)]), ![]; return !![]; } else _0x246e05[_0x243f70(0x284)](_0x28b8fd); } else { if (_0x246e05[_0x243f70(0x1bc)](_0x417bca, '2')) { if (!coverImageUrl) return _0x246e05[_0x243f70(0x138)](alert, _0x246e05['fTipU']), ![]; if (_0x246e05['UDPJz'](screenshotsUrls[_0x243f70(0xf1)], 0x2)) { if (_0x246e05[_0x243f70(0x19a)](_0x246e05['DfDOY'], _0x246e05[_0x243f70(0x282)])) return alert(_0x246e05[_0x243f70(0x29b)]), ![]; else _0x4eb216[_0x243f70(0x104)]()[_0x243f70(0x233)](() => { const _0x53efbc = _0x243f70; _0x246e05[_0x53efbc(0x284)](_0x398df2); }); } return !![]; } } return !![]; } function updatePreview() { const _0xb4c57 = _0x53e529, _0x5c07f9 = { 'TEdPO': function (_0x38acc7, _0x1a8550) { return _0x38acc7(_0x1a8550); }, 'SnDAA': 'Hi,\x20I\x27d\x20like\x20to\x20create\x20an\x20account\x20for\x20GameAccountsHub.\x20My\x20email\x20is:\x20', 'eTfOa': function (_0x2936b1) { return _0x2936b1(); }, 'rtQhA': function (_0x547f27, _0x22b334) { return _0x547f27(_0x22b334); }, 'LRacR': '_blank', 'tXrYE': function (_0x4e91ae, _0x19696d) { return _0x4e91ae === _0x19696d; }, 'nfIJi': _0xb4c57(0x1ad), 'aDEmC': _0xb4c57(0x271), 'yUKse': function (_0x4f806b, _0x384902) { return _0x4f806b === _0x384902; }, 'ttPWy': 'fvJzS', 'AbscZ': _0xb4c57(0x15a), 'mvDOB': function (_0x6f7fba, _0x1faed9, _0x173683) { return _0x6f7fba(_0x1faed9, _0x173683); }, 'rfDfq': _0xb4c57(0x22c), 'Xlucw': '120px', 'Wsxjf': _0xb4c57(0xcb), 'NZnyI': _0xb4c57(0x1d4), 'mWedS': 'account-platform', 'TqPUM': _0xb4c57(0x200), 'iYcZm': _0xb4c57(0x279), 'pkkNN': _0xb4c57(0x27f), 'pGCNt': function (_0x3b024c, _0x537561) { return _0x3b024c !== _0x537561; }, 'ZSpuj': 'nNDEQ', 'AkCAD': 'vsoTd', 'krvyZ': function (_0x4e99bc, _0x2594cd) { return _0x4e99bc > _0x2594cd; } }; previewTitle['textContent'] = document[_0xb4c57(0x26f)]('account-title')[_0xb4c57(0x1a0)], previewGame['textContent'] = document[_0xb4c57(0x26f)](_0xb4c57(0x17a))[_0xb4c57(0x1a0)] + _0xb4c57(0x14c) + document[_0xb4c57(0x26f)](_0x5c07f9[_0xb4c57(0x15b)])['value']; const _0x3fcf93 = document[_0xb4c57(0x26f)]('account-level')['value']; previewLevel[_0xb4c57(0x1ea)] = _0x3fcf93 ? 'Level/Rank:\x20' + _0x3fcf93 : ''; const _0x455cf2 = _0x5c07f9['TEdPO'](parseInt, document['getElementById'](_0x5c07f9[_0xb4c57(0x9b)])['value']); previewPrice[_0xb4c57(0x1ea)] = _0x455cf2 + _0xb4c57(0x12b), previewDescription[_0xb4c57(0x1ea)] = document[_0xb4c57(0x26f)](_0x5c07f9['iYcZm'])[_0xb4c57(0x1a0)], previewFeatures[_0xb4c57(0xba)] = ''; const _0x5839e7 = document[_0xb4c57(0x26f)](_0x5c07f9['pkkNN'])['value']['split'](',')[_0xb4c57(0xdb)](_0x3ddd8e => _0x3ddd8e[_0xb4c57(0x21d)]()); _0x5839e7['forEach'](_0x285164 => { const _0x220a36 = _0xb4c57; if (_0x5c07f9[_0x220a36(0x20f)](_0x5c07f9[_0x220a36(0x21b)], _0x5c07f9[_0x220a36(0x2c7)])) { const _0x30a643 = _0x5c07f9[_0x220a36(0x1d7)](_0x39aedd, _0x5c07f9[_0x220a36(0x22f)]); _0x470320[_0x220a36(0x1a7)](_0x220a36(0x196) + _0x30a643, _0x220a36(0x137)); } else { if (_0x285164) { if (_0x5c07f9[_0x220a36(0x1af)](_0x5c07f9[_0x220a36(0x213)], _0x5c07f9[_0x220a36(0x29d)])) { if (!_0x24a210) _0x5c07f9[_0x220a36(0xa3)](_0x13ccb3), _0x5c07f9[_0x220a36(0xa3)](_0xa4a446); else { if (_0x657844) { const _0x187b8c = _0x5c07f9[_0x220a36(0x2bf)](_0x727813, _0x220a36(0x227) + _0x3d4a1c[_0x220a36(0xd3)] + _0x220a36(0x24e) + _0x27fefd[_0x220a36(0x108)] + '\x20for\x20' + _0x148f26[_0x220a36(0xfb)] + _0x220a36(0xd2) + _0x401710[_0x220a36(0x13f)] + _0x220a36(0x293)); _0x2121b1[_0x220a36(0x1a7)]('https://wa.me/+201010945629?text=' + _0x187b8c, _0x5c07f9[_0x220a36(0x123)]); } } } else { const _0x1cb307 = document['createElement']('li'); _0x1cb307[_0x220a36(0x1ea)] = _0x285164, previewFeatures['appendChild'](_0x1cb307); } } } }), coverImageUrl && (_0x5c07f9[_0xb4c57(0x1fd)](_0x5c07f9['ZSpuj'], _0x5c07f9['AkCAD']) ? previewCover[_0xb4c57(0xc2)][_0xb4c57(0x22a)] = 'url(' + coverImageUrl + ')' : _0x5c07f9['mvDOB'](_0xc59e44, _0x1420b7, _0x5f17fd)), previewScreenshots[_0xb4c57(0xba)] = '', screenshotsUrls && _0x5c07f9['krvyZ'](screenshotsUrls[_0xb4c57(0xf1)], 0x0) && screenshotsUrls[_0xb4c57(0x191)](_0x698f69 => { const _0x58b43e = _0xb4c57, _0x526df1 = document[_0x58b43e(0x12e)](_0x5c07f9[_0x58b43e(0x1f4)]); _0x526df1[_0x58b43e(0xc2)][_0x58b43e(0x2ea)] = _0x5c07f9[_0x58b43e(0x2c6)], _0x526df1['style'][_0x58b43e(0x263)] = _0x5c07f9[_0x58b43e(0x1e1)], _0x526df1[_0x58b43e(0xc2)][_0x58b43e(0x22a)] = 'url(' + _0x698f69 + ')', _0x526df1[_0x58b43e(0xc2)][_0x58b43e(0x286)] = _0x5c07f9[_0x58b43e(0x157)], _0x526df1[_0x58b43e(0xc2)]['backgroundPosition'] = _0x58b43e(0x2c8), _0x526df1[_0x58b43e(0xc2)][_0x58b43e(0x1df)] = '4px', _0x526df1[_0x58b43e(0xc2)]['flexShrink'] = '0', previewScreenshots[_0x58b43e(0x159)](_0x526df1); }); } async function handleSellAccountSubmit(_0x2509b9) { const _0x334224 = _0x53e529, _0x3c6fa8 = { 'lgPuX': _0x334224(0x22e), 'iWxiZ': function (_0x391bc0) { return _0x391bc0(); }, 'OLFjX': function (_0x109e3e, _0x1572d6) { return _0x109e3e(_0x1572d6); }, 'Dflkb': 'account-game', 'MTKCF': 'account-platform', 'prsOz': _0x334224(0x200), 'cisiN': _0x334224(0x10a), 'DdXLT': _0x334224(0x27f), 'oyeCk': function (_0x4b7140) { return _0x4b7140(); }, 'GzMYJ': function (_0x419938) { return _0x419938(); }, 'CfvOb': function (_0x17ec55) { return _0x17ec55(); }, 'WCKuf': _0x334224(0xb9), 'uEXtj': _0x334224(0x238) }; _0x2509b9[_0x334224(0x175)](); if (!currentUser) { alert(_0x3c6fa8[_0x334224(0x165)]), _0x3c6fa8['iWxiZ'](openLoginModal); return; } if (!await _0x3c6fa8[_0x334224(0x2de)](validateSection, '1')) return; if (!await _0x3c6fa8[_0x334224(0x2de)](validateSection, '2')) return; const _0x25ad9b = document[_0x334224(0x26f)](_0x334224(0x287))[_0x334224(0x1a0)], _0x4e49ab = document['getElementById'](_0x3c6fa8['Dflkb'])['value'], _0x13d23b = document[_0x334224(0x26f)](_0x3c6fa8['MTKCF'])[_0x334224(0x1a0)], _0x59a528 = _0x3c6fa8[_0x334224(0x2de)](parseInt, document['getElementById'](_0x3c6fa8['prsOz'])['value']), _0x59e591 = document[_0x334224(0x26f)]('account-level')['value'], _0x32f01b = document[_0x334224(0x26f)](_0x3c6fa8[_0x334224(0x2b1)])['value'], _0xde0f2 = document['getElementById'](_0x334224(0x279))['value'], _0x40cc0b = document[_0x334224(0x26f)](_0x3c6fa8[_0x334224(0x1a6)])['value'][_0x334224(0x106)](',')['map'](_0x3beeb9 => _0x3beeb9[_0x334224(0x21d)]()); try { const _0x5bc0af = { 'title': _0x25ad9b, 'game': _0x4e49ab, 'platform': _0x13d23b, 'price': _0x59a528, 'level': _0x59e591 || null, 'status': _0x32f01b, 'description': _0xde0f2, 'features': _0x40cc0b, 'image': coverImageUrl, 'screenshots': screenshotsUrls, 'sellerId': currentUser['uid'], 'sellerEmail': currentUser[_0x334224(0x13f)], 'createdAt': firebase[_0x334224(0xc8)][_0x334224(0x1b9)]['serverTimestamp'](), 'views': 0x0, 'favorites': 0x0 }; await addGameToFirestore(_0x5bc0af), await _0x3c6fa8[_0x334224(0x18d)](loadGameListings), await _0x3c6fa8['iWxiZ'](loadMyAccounts), _0x3c6fa8[_0x334224(0x18a)](resetSellForm), _0x3c6fa8['CfvOb'](showGameListings), _0x3c6fa8[_0x334224(0x2de)](alert, _0x3c6fa8[_0x334224(0x1e9)]); } catch (_0x14baeb) { console[_0x334224(0x1f2)](_0x3c6fa8[_0x334224(0x229)], _0x14baeb), _0x3c6fa8['OLFjX'](alert, _0x334224(0x91) + _0x14baeb['message']); } } init();
+    </script>
+</body>
+
+</html>
